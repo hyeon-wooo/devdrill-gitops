@@ -99,6 +99,10 @@ spec:
   # CONFIG
   #######################################################################
   config:
+    extensions:
+      basicauth:
+        username: ${env:GRAFANA_INSTANCE_ID}
+        password: ${env:GRAFANA_API_KEY}
     receivers:
       otlp:
         protocols:
