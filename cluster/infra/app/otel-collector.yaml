@@ -178,7 +178,7 @@ spec:
       #         - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
 
     exporters:
-      grafana:
+      otlp/grafana:
         endpoint: ${env:GRAFANA_CLOUD_OTLP_ENDPOINT}
         auth:
           authenticator: basicauth
@@ -191,12 +191,12 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [grafana]
+          exporters: [otlp/grafana]
 
         metrics:
           receivers: [otlp, hostmetrics]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [grafana]
+          exporters: [otlp/grafana]
 
         traces:
           receivers: [otlp]
@@ -208,4 +208,4 @@ spec:
               tail_sampling,
               batch/trace,
             ]
-          exporters: [grafana]
+          exporters: [otlp/grafana]
