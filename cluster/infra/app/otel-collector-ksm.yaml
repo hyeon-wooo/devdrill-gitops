@@ -1,0 +1,70 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector-ksm
+  namespace: observability
+spec:
+  mode: deployment
+  image: otel/opentelemetry-collector-contrib:0.112.0
+  replicas: 1
+
+  serviceAccount: otel-collector-sa
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+  config:
+    extensions:
+      basicauth:
+        client_auth:
+          username: ${env:GRAFANA_INSTANCE_ID}
+          password: ${env:GRAFANA_API_KEY}
+    receivers:
+      prometheus/ksm:
+        config:
+          scrape_configs:
+            - job_name: "kube-state-metrics"
+              static_configs:
+                - targets:
+                    - "kube-state-metrics.kube-system.svc:8080"
+
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+
+      batch:
+        timeout: 5s
+        send_batch_size: 1024
+
+      k8sattributes:
+        auth_type: serviceAccount
+        # filter:
+        #   node_from_env_var: K8S_NODE_NAME
+        extract:
+          metadata:
+            - k8s.namespace.name
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.container.name
+            - k8s.node.name
+
+    exporters:
+      otlphttp/grafana:
+        endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
+        auth:
+          authenticator: basicauth
+
+      debug:
+        verbosity: normal
+    service:
+      extensions: [basicauth]
+
+      pipelines:
+        metrics/kubeletstats:
+          receivers: [prometheus/ksm]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [otlphttp/grafana, debug]
