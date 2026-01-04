@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-operator
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    # 1. 공식 Helm 차트 (Upstream)
+    - repoURL: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+      chart: opentelemetry-operator
+      targetRevision: 0.99.2
+    # 2. 내 Git 레포 (Local Config)
+    - repoURL: "https://github.com/hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  source:
+    helm:
+      valueFiles:
+        # 새로 바뀐 경로를 지정합니다.
+        - $myconfig/cluster/infra/config/otel-operator/values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
