@@ -99,6 +99,11 @@ spec:
   # CONFIG
   #######################################################################
   config:
+    extensions:
+      basicauth:
+        client_auth:
+          username: ${env:GRAFANA_INSTANCE_ID}
+          password: ${env:GRAFANA_API_KEY}
     receivers:
       otlp:
         protocols:
@@ -181,14 +186,14 @@ spec:
       otlphttp/grafana:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
         auth:
-          basic:
-            username: ${env:GRAFANA_INSTANCE_ID}
-            password: ${env:GRAFANA_API_KEY}
+          authenticator: basicauth
 
       debug:
         verbosity: normal
 
     service:
+      extensions: [basicauth]
+
       pipelines:
         logs:
           receivers: [otlp]
