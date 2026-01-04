@@ -5,7 +5,7 @@ metadata:
   namespace: observability
 spec:
   mode: deployment
-  image: otel/opentelemetry-collector-contrib:0.112.0
+  image: otel/opentelemetry-collector-k8s:0.123.0
   replicas: 1
 
   serviceAccount: otel-collector-sa
@@ -68,7 +68,7 @@ spec:
       extensions: [basicauth]
 
       pipelines:
-        metrics/kubeletstats:
+        metrics/ksm:
           receivers: [prometheus/ksm]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana, debug]
+          exporters: [otlphttp/grafana]

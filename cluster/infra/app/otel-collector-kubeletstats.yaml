@@ -5,7 +5,7 @@ metadata:
   namespace: observability
 spec:
   mode: daemonset
-  image: otel/opentelemetry-collector-contrib:0.112.0
+  image: otel/opentelemetry-collector-k8s:0.123.0
 
   serviceAccount: otel-collector-sa
 
@@ -46,6 +46,15 @@ spec:
               static_configs:
                 - targets: ["127.0.0.1:8888"]
 
+      prometheus/node_exporter:
+        config:
+          scrape_configs:
+            - job_name: "node-exporter"
+              scrape_interval: 15s
+              static_configs:
+                - targets:
+                    - "${env:K8S_NODE_NAME}:9100"
+
     processors:
       memory_limiter:
         check_interval: 5s
@@ -80,14 +89,14 @@ spec:
 
       pipelines:
         metrics/kubeletstats:
-          receivers: [kubeletstats]
+          receivers: [kubeletstats, prometheus/node_exporter]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana, debug]
+          exporters: [otlphttp/grafana]
 
         metrics/ds-collector:
           receivers: [prometheus/ds-collector]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana, debug]
+          exporters: [otlphttp/grafana]
 
       telemetry:
         metrics:
