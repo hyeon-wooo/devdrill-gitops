@@ -198,12 +198,12 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
 
         metrics:
           receivers: [otlp, hostmetrics]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
 
         traces:
           receivers: [otlp]
@@ -215,4 +215,4 @@ spec:
               tail_sampling,
               batch/trace,
             ]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
