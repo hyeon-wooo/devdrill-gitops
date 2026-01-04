@@ -191,3 +191,7 @@ spec:
               batch/trace,
             ]
           exporters: [otlphttp/grafana]
+
+      telemetry:
+        metrics:
+          address: "0.0.0.0:9998"
