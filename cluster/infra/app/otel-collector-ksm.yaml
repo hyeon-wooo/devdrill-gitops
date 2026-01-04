@@ -10,6 +10,10 @@ spec:
 
   serviceAccount: otel-collector-sa
 
+  envFrom:
+    - secretRef:
+        name: grafana-cloud-credentials
+
   resources:
     limits:
       cpu: 200m
@@ -28,7 +32,7 @@ spec:
             - job_name: "kube-state-metrics"
               static_configs:
                 - targets:
-                    - "kube-state-metrics.kube-system.svc:8080"
+                    - "kube-state-metrics.observability.svc:8080"
 
     processors:
       memory_limiter:
