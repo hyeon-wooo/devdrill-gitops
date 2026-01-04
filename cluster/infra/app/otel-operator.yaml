@@ -20,6 +20,20 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: observability
+
+  # caBundle과 같이 otel operator가 동적으로 생성하는 리소스는 무시
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: otel-operator-opentelemetry-operator-mutation
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: otel-operator-opentelemetry-operator-validation
+      jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+
   syncPolicy:
     automated:
       prune: true
