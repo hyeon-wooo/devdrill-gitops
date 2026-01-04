@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: devdrill-api
-  namespace: devdrill-prod
+  namespace: argocd
 spec:
   project: default
   sources:
