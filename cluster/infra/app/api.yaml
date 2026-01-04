@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devdrill-api
+  namespace: devdrill-prod
+spec:
+  project: default
+  sources:
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: app/default
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: devdrill-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

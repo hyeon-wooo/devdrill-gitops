@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devdrill-api
+  namespace: devdrill-prod
+  labels:
+    app: devdrill
+    tier: api
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devdrill
+      tier: api
+      env: prod
+  template:
+    metadata:
+      labels:
+        app: devdrill
+        tier: api
+        env: prod
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: devdrill-api
+          image: docker.hyeonwoo.com/devdrill/devdrill-api:latest
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: api-data
+              mountPath: /app/data
+          envFrom:
+            - configMapRef:
+                name: devdrill-api-cm
+            - secretRef:
+                name: devdrill-api-secret
+      volumes:
+        - name: api-data
+          hostPath:
+            path: /var/devdrill/volume-api
+            type: Directory
