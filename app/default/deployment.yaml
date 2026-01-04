@@ -24,9 +24,12 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
+      imagePullSecrets:
+        - name: harbor-auth
       containers:
         - name: devdrill-api
           image: docker.hyeonwoo.com/devdrill/devdrill-api:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           volumeMounts:
