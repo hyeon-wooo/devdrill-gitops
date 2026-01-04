@@ -1,0 +1,19 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: devdrill-api-route
+  namespace: devdrill-prod
+spec:
+  parentRefs:
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+  hostnames:
+    - "devdrill-api.hyeonwoo.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: devdrill-api
+          port: 3010
