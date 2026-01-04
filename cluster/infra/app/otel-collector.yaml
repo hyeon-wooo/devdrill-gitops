@@ -179,7 +179,7 @@ spec:
 
     exporters:
       otlphttp/grafana:
-        endpoint: ${env:GRAFANA_CLOUD_OTLP_ENDPOINT}
+        endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
         auth:
           authenticator: basicauth
 
