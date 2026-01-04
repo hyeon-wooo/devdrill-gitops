@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    # 1. 공식 Helm 차트
+    - repoURL: "https://charts.jetstack.io"
+      chart: cert-manager
+      targetRevision: v1.19.1
+      helm:
+        valueFiles:
+          - $myconfig/cluster/infra/config/cert-manager/values.yaml
+    # 2. 내 Git 레포 (설정값 참조용)
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
