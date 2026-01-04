@@ -1,8 +1,7 @@
 crds:
   enabled: true
+# tolerations:
 
-tolerations:
+# cainjector:
 
-cainjector:
-
-webhook:
+# webhook:
