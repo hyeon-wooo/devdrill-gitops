@@ -23,16 +23,21 @@ spec:
 
   # caBundle과 같이 otel operator가 동적으로 생성하는 리소스는 무시
   ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: opentelemetrycollectors.opentelemetry.io
+      jsonPointers:
+        - /spec/conversion/webhook/clientConfig/caBundle
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
       name: otel-operator-opentelemetry-operator-mutation
       jsonPointers:
-        - /webhooks/0/clientConfig/caBundle
+        - /webhooks/1/clientConfig/caBundle
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
       name: otel-operator-opentelemetry-operator-validation
       jsonPointers:
-        - /webhooks/0/clientConfig/caBundle
+        - /webhooks/1/clientConfig/caBundle
 
   syncPolicy:
     automated:
