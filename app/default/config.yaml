@@ -11,5 +11,5 @@ data:
   NODE_ENV: "production"
   PORT: "3000"
 
-  FILE_BATH_URL: "https://devdrill-api.hyeonwoo.com"
+  FILE_BASE_URL: "https://devdrill-api.hyeonwoo.com"
   FILE_PUBLIC_STORAGE: "/app/data/public"
