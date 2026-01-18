@@ -4,7 +4,7 @@ metadata:
   name: devdrill-api
   namespace: argocd
   annotations:
-    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: ""
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: devdrill-cicd
 spec:
   project: default
   sources:
