@@ -13,3 +13,5 @@ data:
 
   FILE_BASE_URL: "https://devdrill-api.hyeonwoo.com"
   FILE_PUBLIC_STORAGE: "/app/data/public"
+
+  OTEL_COLLECTOR_ENDPOINT: "http://otel-collector-app-collector.observability.svc:4317"
