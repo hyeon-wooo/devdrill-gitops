@@ -156,7 +156,7 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana, debug]
+          exporters: [otlphttp/grafana]
 
         metrics:
           receivers: [otlp]
