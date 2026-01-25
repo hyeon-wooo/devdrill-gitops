@@ -97,15 +97,6 @@ spec:
           http:
             endpoint: 0.0.0.0:4318
 
-      kubeletstats:
-        collection_interval: 30s
-        auth_type: serviceAccount
-        insecure_skip_verify: true
-        metric_groups:
-          - node
-          - pod
-          - container
-
     processors:
       memory_limiter:
         check_interval: 5s
@@ -149,14 +140,6 @@ spec:
             - k8s.container.name
             - k8s.node.name
 
-      # transform/labels:
-      #   metric_statements:
-      #     - context: datapoint
-      #       statements:
-      #         - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
-      #         - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
-      #         - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
-
     exporters:
       otlphttp/grafana:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
@@ -173,7 +156,7 @@ spec:
         logs:
           receivers: [otlp]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
 
         metrics:
           receivers: [otlp]
@@ -190,7 +173,7 @@ spec:
               tail_sampling,
               batch/trace,
             ]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
 
       telemetry:
         metrics:
