@@ -20,7 +20,14 @@ spec:
         app: devdrill
         tier: api
         env: prod
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "devdrill"
+          effect: "NoSchedule"
     spec:
+      nodeSelector:
+        dedicated: devdrill
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
