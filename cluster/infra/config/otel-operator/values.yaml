@@ -4,6 +4,14 @@ manager:
   collectorImage:
     repository: otel/opentelemetry-collector-k8s
 
+  nodeSelector:
+    dedicated: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
 admissionWebhooks:
   certManager:
     enabled: false

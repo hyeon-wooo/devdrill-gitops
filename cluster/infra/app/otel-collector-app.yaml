@@ -66,6 +66,14 @@ spec:
   mode: daemonset
   image: otel/opentelemetry-collector-contrib:0.112.0
 
+  nodeSelector:
+    dedicated: devdrill
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "devdrill"
+      effect: "NoSchedule"
+
   serviceAccount: otel-collector-sa
 
   hostNetwork: true

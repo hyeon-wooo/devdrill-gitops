@@ -1,1 +1,9 @@
 prometheusScrape: true
+
+nodeSelector:
+  dedicated: system
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "system"
+    effect: "NoSchedule"

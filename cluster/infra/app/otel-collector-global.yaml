@@ -8,6 +8,14 @@ spec:
   image: otel/opentelemetry-collector-contrib:0.112.0
   replicas: 1
 
+  nodeSelector:
+    dedicated: system
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "system"
+      effect: "NoSchedule"
+
   serviceAccount: otel-collector-sa
 
   envFrom:

@@ -1,6 +1,13 @@
 crds:
   enabled: true
-# tolerations:
+
+nodeSelector:
+  dedicated: system
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "system"
+    effect: "NoSchedule"
 
 # cainjector:
 
