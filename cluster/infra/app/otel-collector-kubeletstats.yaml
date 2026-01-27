@@ -8,14 +8,9 @@ spec:
   image: otel/opentelemetry-collector-contrib:0.112.0
 
   tolerations:
-    - name: "dedicated"
-      operator: "Equal"
-      value: "system"
-      effect: "NoSchedule"
-    - name: "dedicated"
-      operator: "Equal"
-      value: "devdrill"
-      effect: "NoSchedule"
+    - key: "dedicated"
+      operator: "Exists"
+      effect: "NoExecute"
 
   serviceAccount: otel-collector-sa
 
