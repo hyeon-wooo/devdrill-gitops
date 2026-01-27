@@ -50,5 +50,5 @@ spec:
       volumes:
         - name: api-data
           hostPath:
-            path: /var/devdrill/volume-api
+            path: /share/devdrill/volume-api
             type: Directory
