@@ -71,7 +71,6 @@ spec:
 
       k8sattributes:
         auth_type: serviceAccount
-        passthrough: true
         extract:
           metadata:
             - k8s.namespace.name
