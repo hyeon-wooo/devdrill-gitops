@@ -10,7 +10,7 @@ spec:
   sources:
     - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
       targetRevision: HEAD
-      path: app/default
+      path: cluster/workload/devdrill-api
   destination:
     server: "https://kubernetes.default.svc"
     namespace: devdrill-prod
