@@ -12,7 +12,7 @@ spec:
       targetRevision: 0.99.2
       helm:
         valueFiles:
-          - $myconfig/cluster/infra/config/otel-operator/values.yaml
+          - $myconfig/cluster/app/otel-operator/values.yaml
     # 2. 내 Git 레포 (Local Config)
     - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
       targetRevision: HEAD

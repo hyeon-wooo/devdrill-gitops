@@ -1,23 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-state-metrics
+  name: cert-manager
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: "https://prometheus-community.github.io/helm-charts"
-      chart: kube-state-metrics
-      targetRevision: 5.15.0
+    # 1. 공식 Helm 차트
+    - repoURL: "https://charts.jetstack.io"
+      chart: cert-manager
+      targetRevision: v1.19.1
       helm:
         valueFiles:
-          - $myconfig/cluster/infra/config/ksm/values.yaml
+          - $myconfig/cluster/app/cert-manager/values.yaml
+    # 2. 내 Git 레포 (설정값 참조용)
     - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
       targetRevision: HEAD
       ref: myconfig
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: observability
+    namespace: cert-manager
   syncPolicy:
     automated:
       prune: true
