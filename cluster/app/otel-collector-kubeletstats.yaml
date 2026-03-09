@@ -41,8 +41,6 @@ spec:
           - node
           - pod
           - container
-        extra_metadata_labels:
-          - k8s.node.name
 
       prometheus/ds-collector:
         config:
@@ -73,6 +71,7 @@ spec:
 
       k8sattributes:
         auth_type: serviceAccount
+        passthrough: true
         extract:
           metadata:
             - k8s.namespace.name
@@ -86,6 +85,7 @@ spec:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
         auth:
           authenticator: basicauth
+        metrics_schema: prometheus
 
       debug:
         verbosity: normal
