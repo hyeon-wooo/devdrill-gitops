@@ -41,6 +41,7 @@ spec:
           - node
           - pod
           - container
+          - network
 
       prometheus/ds-collector:
         config:
