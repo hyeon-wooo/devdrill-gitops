@@ -85,7 +85,8 @@ spec:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
         auth:
           authenticator: basicauth
-        metrics_schema: prometheus
+        metrics:
+          resource_attributes_as_attributes: true
 
       debug:
         verbosity: normal
