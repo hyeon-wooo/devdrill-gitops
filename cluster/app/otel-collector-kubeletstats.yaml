@@ -41,6 +41,8 @@ spec:
           - node
           - pod
           - container
+        extra_metadata_labels:
+          - k8s.node.name
 
       prometheus/ds-collector:
         config:
