@@ -80,6 +80,12 @@ spec:
             - k8s.container.name
             - k8s.node.name
 
+      transform:
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["node_name"], resource.attributes["k8s.node.name"])
+
     exporters:
       otlphttp/grafana:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
@@ -95,7 +101,7 @@ spec:
       pipelines:
         metrics/kubeletstats:
           receivers: [kubeletstats]
-          processors: [memory_limiter, k8sattributes, batch]
+          processors: [memory_limiter, k8sattributes, transform, batch]
           exporters: [otlphttp/grafana, debug]
 
       telemetry:
