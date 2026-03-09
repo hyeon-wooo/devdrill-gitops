@@ -49,6 +49,5 @@ spec:
                 name: devdrill-api-secret
       volumes:
         - name: api-data
-          hostPath:
-            path: /share/devdrill/volume-api
-            type: Directory
+          persistentVolumeClaim:
+            claimName: devdrill-pvc

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: devdrill-pv
+spec:
+  capacity:
+    storage: 100Gi
+  # 여러 노드에서 rw 가능
+  accessModes:
+    - ReadWriteMany
+  # PVC가 삭제되어도 실제 데이터는 유지
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-home
+  nfs:
+    server: 10.10.10.51
+    path: "/share/devdrill/volume-api"
