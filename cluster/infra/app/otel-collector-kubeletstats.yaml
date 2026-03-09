@@ -10,7 +10,6 @@ spec:
   tolerations:
     - key: "dedicated"
       operator: "Exists"
-      effect: "NoExecute"
 
   serviceAccount: otel-collector-sa
 
