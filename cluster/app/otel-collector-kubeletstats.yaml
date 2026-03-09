@@ -85,8 +85,6 @@ spec:
         endpoint: https://otlp-gateway-prod-ap-northeast-0.grafana.net/otlp
         auth:
           authenticator: basicauth
-        metrics:
-          resource_attributes_as_attributes: true
 
       debug:
         verbosity: normal
@@ -96,14 +94,9 @@ spec:
 
       pipelines:
         metrics/kubeletstats:
-          receivers: [kubeletstats, prometheus/node_exporter]
+          receivers: [kubeletstats]
           processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana]
-
-        metrics/ds-collector:
-          receivers: [prometheus/ds-collector]
-          processors: [memory_limiter, k8sattributes, batch]
-          exporters: [otlphttp/grafana]
+          exporters: [otlphttp/grafana, debug]
 
       telemetry:
         metrics:
