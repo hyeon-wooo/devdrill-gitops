@@ -5,12 +5,15 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
-    targetRevision: HEAD
-    path: cluster/app
-    directory:
-      recurse: true
+  sources:
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: cluster/app
+      directory:
+        recurse: true
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: cluster/storage
   destination:
     server: "https://kubernetes.default.svc"
   syncPolicy:
