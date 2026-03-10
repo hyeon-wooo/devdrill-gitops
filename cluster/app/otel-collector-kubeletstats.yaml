@@ -61,6 +61,9 @@ spec:
               scrape_interval: 10s
               static_configs:
                 - targets: ["127.0.0.1:9998"]
+              relabel_configs:
+                - replacement: "${env:K8S_NODE_NAME}"
+                  target_label: node_name
 
     processors:
       memory_limiter:
