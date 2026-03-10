@@ -54,6 +54,14 @@ spec:
                 - replacement: "${env:K8S_NODE_NAME}"
                   target_label: node_name
 
+      otlp/ds-collector:
+        config:
+          scrape_configs:
+            - job_name: "ds-collector"
+              scrape_interval: 10s
+              static_configs:
+                - targets: ["127.0.0.1:9998"]
+
     processors:
       memory_limiter:
         check_interval: 5s
@@ -96,7 +104,7 @@ spec:
 
       pipelines:
         metrics/kubeletstats:
-          receivers: [kubeletstats, prometheus/node_exporter]
+          receivers: [kubeletstats, prometheus/node_exporter, otlp/ds-collector]
           processors: [memory_limiter, k8sattributes, transform, batch]
           exporters: [otlphttp/grafana]
 
