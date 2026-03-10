@@ -50,6 +50,9 @@ spec:
               static_configs:
                 - targets:
                     - "${env:K8S_NODE_NAME}:9100"
+              relabel_configs:
+                - replacement: "${env:K8S_NODE_NAME}"
+                  target_label: node_name
 
     processors:
       memory_limiter:
