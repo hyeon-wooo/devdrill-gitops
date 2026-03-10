@@ -49,6 +49,9 @@ spec:
               scrape_interval: 15s
               static_configs:
                 - targets: ["10.10.10.51:9104"]
+              relabel_configs:
+                - target_label: job
+                  replacement: "home"
 
     processors:
       memory_limiter:
