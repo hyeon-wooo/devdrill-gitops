@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-exporter
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "oci://ghcr.io/prometheus-community/charts/prometheus-node-exporter"
+      chart: prometheus-node-exporter
+      targetRevision: 4.52.0
+      helm:
+        valueFiles:
+          - $myconfig/cluster/app/node-exporter/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
