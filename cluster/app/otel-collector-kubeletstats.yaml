@@ -54,13 +54,26 @@ spec:
                 - replacement: "${env:K8S_NODE_NAME}"
                   target_label: node_name
 
+      # DevDrill Telemetry Collector
+      prometheus/ds-collector-app:
+        config:
+          scrape_configs:
+            - job_name: "ds-collector-app"
+              scrape_interval: 10s
+              static_configs:
+                - targets: ["127.0.0.1:9998"]
+              relabel_configs:
+                - replacement: "${env:K8S_NODE_NAME}"
+                  target_label: node_name
+
+      # Collector itself
       prometheus/ds-collector:
         config:
           scrape_configs:
             - job_name: "ds-collector"
               scrape_interval: 10s
               static_configs:
-                - targets: ["127.0.0.1:9998"]
+                - targets: ["127.0.0.1:9999"]
               relabel_configs:
                 - replacement: "${env:K8S_NODE_NAME}"
                   target_label: node_name
@@ -108,7 +121,12 @@ spec:
       pipelines:
         metrics/kubeletstats:
           receivers:
-            [kubeletstats, prometheus/node_exporter, prometheus/ds-collector]
+            [
+              kubeletstats,
+              prometheus/node_exporter,
+              prometheus/ds-collector-app,
+              prometheus/ds-collector,
+            ]
           processors: [memory_limiter, k8sattributes, transform, batch]
           exporters: [otlphttp/grafana]
 
