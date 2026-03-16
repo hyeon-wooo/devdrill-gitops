@@ -136,7 +136,7 @@ spec:
             type: probabilistic
             probabilistic:
               # 모든 트레이스 수집 (FIXME: 부하 걸 때는 조정할 것!!)
-              sampling_percentage: 100
+              sampling_percentage: 10
 
       k8sattributes:
         auth_type: serviceAccount
