@@ -181,7 +181,7 @@ spec:
               tail_sampling,
               batch/trace,
             ]
-          exporters: [otlphttp/grafana, debug]
+          exporters: [otlphttp/grafana]
 
       telemetry:
         metrics:
