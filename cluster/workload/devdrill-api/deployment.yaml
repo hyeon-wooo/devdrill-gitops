@@ -47,6 +47,9 @@ spec:
                 name: devdrill-api-cm
             - secretRef:
                 name: devdrill-api-secret
+          resources:
+            limit:
+              cpu: 500m
       volumes:
         - name: api-data
           persistentVolumeClaim:
