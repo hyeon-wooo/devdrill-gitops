@@ -48,7 +48,7 @@ spec:
             - secretRef:
                 name: devdrill-api-secret
           resources:
-            limit:
+            limits:
               cpu: 500m
             requests:
               cpu: 30m
