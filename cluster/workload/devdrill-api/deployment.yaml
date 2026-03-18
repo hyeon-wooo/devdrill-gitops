@@ -8,7 +8,7 @@ metadata:
     tier: api
     env: prod
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: devdrill
@@ -27,7 +27,6 @@ spec:
         - key: "dedicated"
           operator: "Equal"
           value: "devdrill"
-          effect: "NoSchedule"
       topologySpreadConstraints:
         - maxSkew: 1
           whenUnsatisfiable: ScheduleAnyway
