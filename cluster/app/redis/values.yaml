@@ -17,6 +17,9 @@ commonConfiguration: |-
 
   aclfile /opt/bitnami/redis/conf/users.acl
 
+auth:
+  enabled: false
+
 master:
   persistence:
     enabled: false
