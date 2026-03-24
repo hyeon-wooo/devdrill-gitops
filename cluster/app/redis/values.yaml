@@ -1,0 +1,26 @@
+commonConfiguration: |-
+  rename-command KEYS ""
+  stop-writes-on-bgsave-error no
+  save ""
+
+  maxmemory-policy volatile-lfu
+
+  aclfile /opt/bitnami/redis/etc/users.acl
+
+master:
+  # ACL 파일 마운트
+  extraVolumes:
+    - name: redis-acl
+      secret:
+        secretName: redis-acl-secret
+  extraVolumeMounts:
+    - name: redis-acl
+      mountPath: /opt/bitnami/redis/etc/users.acl
+      subPath: users.acl
+      readOnly: true
+  # 포트 변경
+  containerPorts:
+    redis: 27396
+  service:
+    ports:
+      redis: 27396

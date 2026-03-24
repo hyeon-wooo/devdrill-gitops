@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-state-metrics
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "https://charts.bitnami.com/bitnami"
+      chart: redis
+      targetRevision: 25.3.8 # redis 8.6.1
+      helm:
+        releaseName: cache
+        valueFiles:
+          - $myconfig/cluster/app/redis/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: datastore
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
