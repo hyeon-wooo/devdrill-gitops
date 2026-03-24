@@ -15,7 +15,7 @@ commonConfiguration: |-
 
   maxmemory-policy volatile-lfu
 
-  aclfile /opt/bitnami/redis/etc/users.acl
+  aclfile /opt/bitnami/redis/conf/users.acl
 
 master:
   persistence:
@@ -27,7 +27,7 @@ master:
         secretName: redis-acl-secret
   extraVolumeMounts:
     - name: redis-acl
-      mountPath: /opt/bitnami/redis/etc/users.acl
+      mountPath: /opt/bitnami/redis/conf/users.acl
       subPath: users.acl
       readOnly: true
   # 포트 변경
