@@ -18,6 +18,8 @@ commonConfiguration: |-
   aclfile /opt/bitnami/redis/etc/users.acl
 
 master:
+  persistence:
+    enabled: false
   # ACL 파일 마운트
   extraVolumes:
     - name: redis-acl
