@@ -1,3 +1,13 @@
+architecture: standalone
+
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "system"
+
+nodeSelector:
+  dedicated: system
+
 commonConfiguration: |-
   rename-command KEYS ""
   stop-writes-on-bgsave-error no
