@@ -13,7 +13,7 @@ env:
         name: redis-exporter-credential
 
 tolerations:
-  - name: "dedicated"
+  - key: "dedicated"
     operator: "Equal"
     value: "system"
 
