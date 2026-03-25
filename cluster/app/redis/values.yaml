@@ -14,6 +14,7 @@ commonConfiguration: |-
   save ""
 
   maxmemory-policy volatile-lfu
+  maxmemory 111mb
 
   aclfile /opt/bitnami/redis/conf/users.acl
 
@@ -39,3 +40,8 @@ master:
   service:
     ports:
       redis: 27396
+  resources:
+    requests:
+      memory: 111Mi
+    limits:
+      memory: 111Mi
