@@ -1,0 +1,21 @@
+redisAddress: redis://cache-redis-master.datastore.svc.cluster.local:27396
+
+env:
+  - name: REDIS_USER
+    valueFrom:
+      secretKeyRef:
+        key: username
+        name: redis-exporter-credential
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: redis-exporter-credential
+
+tolerations:
+  - name: "dedicated"
+    operator: "Equal"
+    value: "system"
+
+nodeSelector:
+  dedicated: system

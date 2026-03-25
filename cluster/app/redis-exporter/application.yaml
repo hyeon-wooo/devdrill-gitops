@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis-exporter
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "https://prometheus-community.github.io/helm-charts"
+      chart: prometheus-redis-exporter
+      targetRevision: 6.22.0
+      helm:
+        releaseName: redis-exporter
+        valueFiles:
+          - $myconfig/cluster/app/redis-exporter/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
