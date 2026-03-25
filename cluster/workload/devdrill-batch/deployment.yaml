@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devdrill-batch
+  namespace: devdrill-prod
+  labels:
+    app: devdrill
+    tier: batch
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devdrill
+      tier: batch
+      env: prod
+  template:
+    metadata:
+      labels:
+        app: devdrill
+        tier: batch
+        env: prod
+    spec:
+      nodeSelector:
+        dedicated: devdrill
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "devdrill"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      imagePullSecrets:
+        - name: harbor-auth
+      containers:
+        - name: devdrill-batch
+          image: docker.hyeonwoo.com/devdrill/devdrill-batch:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: devdrill-batch-cm
+            - secretRef:
+                name: devdrill-batch-secret

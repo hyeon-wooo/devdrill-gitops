@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devdrill-batch-cm
+  namespace: devdrill-prod
+  labels:
+    app: devdrill
+    tier: batch
+    env: prod
+data:
+  NODE_ENV: "production"
+  PORT: "3000"

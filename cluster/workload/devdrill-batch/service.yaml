@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devdrill-batch
+  namespace: devdrill-prod
+  labels:
+    app: devdrill
+    tier: batch
+    env: prod
+spec:
+  selector:
+    app: devdrill
+    tier: batch
+    env: prod
+  ports:
+    - port: 3020
+      targetPort: 3000
+      protocol: TCP
+  type: ClusterIP
