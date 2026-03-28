@@ -65,7 +65,7 @@ spec:
               path: /
               port: 3000
             initialDelaySeconds: 5 # 앱이 뜨는 시간을 고려해 5초 후부터 검사. api bootstrap 시간이 2초인걸 고려해서 여유있게 3초로 설정해보았으나 최초 검사가 통과하지 못하는걸 확인함. 조금 더 여유롭게 5초로 설정.
-            periodSeconds: 10 # 10초마다 반복 검사
+            periodSeconds: 5 # 5초마다 반복 검사
           livenessProbe:
             httpGet:
               path: /
