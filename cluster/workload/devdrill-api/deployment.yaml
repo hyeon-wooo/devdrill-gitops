@@ -60,19 +60,19 @@ spec:
               cpu: 500m
             requests:
               cpu: 30m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 3 # 앱이 뜨는 시간을 고려해 3초 후부터 검사
+            periodSeconds: 10 # 10초마다 반복 검사
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15 # Liveness는 좀 더 여유 있게 시작
+            periodSeconds: 20
       volumes:
         - name: api-data
           persistentVolumeClaim:
             claimName: devdrill-pvc
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 3000
-        initialDelaySeconds: 3 # 앱이 뜨는 시간을 고려해 3초 후부터 검사
-        periodSeconds: 10 # 10초마다 반복 검사
-      livenessProbe:
-        httpGet:
-          path: /
-          port: 3000
-        initialDelaySeconds: 15 # Liveness는 좀 더 여유 있게 시작
-        periodSeconds: 20
