@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: https://kubernetes-sigs.github.io/metrics-server/
+    - repoURL: https://robusta-charts.storage.googleapis.com
       chart: kubewatch
       targetRevision: 3.5.0
       helm:
