@@ -1,0 +1,11 @@
+# values.yaml
+args:
+  - --kubelet-insecure-tls
+
+nodeSelector:
+  dedicated: system
+
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "system"
