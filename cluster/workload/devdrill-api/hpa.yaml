@@ -2,6 +2,9 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: devdrill-api-hpa
+  namespace: devdrill-prod
+  annotations:
+    notifications.argoproj.io/subscribe.on-hpa-scaling.slack: devdrill-alert
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
