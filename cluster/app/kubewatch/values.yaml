@@ -1,0 +1,22 @@
+namespace: observability
+
+rbac:
+  create: true
+
+slack:
+  enabled: true
+  channel: "#devdrill-alert"
+
+# HPA 이벤트만 감시
+resourcesToWatch:
+  deployment: false
+  horizontalpodautoscaler: true
+  pod: false
+  services: false
+
+env:
+  - name: KW_SLACK_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: slack-secret
+        key: slack-token
