@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-event-collector
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "https://github.com/hyeon-wooo/kube-event-collector/charts"
+      chart: kube-event-collector
+      targetRevision: 0.1.0
+      helm:
+        valueFiles:
+          - $myconfig/cluster/app/event-collector/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

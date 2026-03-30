@@ -1,0 +1,32 @@
+serviceAccount:
+  create: true
+
+secretName: slack-secret
+
+config:
+  events:
+    hpa_scaling:
+      type: Normal
+      reason: SuccessfulRescale
+      kind: HorizontalPodAutoscaler
+      namespace: devdrill-prod
+
+  fetchers:
+    target_deployment:
+      resource: Deployment
+      namespace: devdrill-prod
+      resource_name: devdrill-api
+
+  notifiers:
+    slack/alert-hpa:
+      webhook_url_env: SLACK_WEBHOOK_ALERT
+      template: |
+        🚀 [HPA Scaling] 이벤트 발생: {{ event.involvedObject.name }}
+        - 현재 파드 수: {{ target_deployment.status.replicas  }}
+
+  service:
+    pipelines:
+      default_alert_pipeline:
+        events: ["hpa_scaling"]
+        fetchers: ["target_deployment"]
+        notifiers: ["slack/alert"]
