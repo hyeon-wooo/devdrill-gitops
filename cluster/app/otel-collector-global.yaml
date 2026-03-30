@@ -38,6 +38,7 @@ spec:
         config:
           scrape_configs:
             - job_name: "kube-state-metrics"
+              scrape_interval: 30s
               static_configs:
                 - targets:
                     - "kube-state-metrics.observability.svc:8080"
