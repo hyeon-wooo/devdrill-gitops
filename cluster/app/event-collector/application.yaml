@@ -8,7 +8,7 @@ spec:
   sources:
     - repoURL: "https://hyeon-wooo.github.io/kube-event-collector"
       chart: kube-event-collector
-      targetRevision: 0.1.0
+      targetRevision: 0.2.0
       helm:
         valueFiles:
           - $myconfig/cluster/app/event-collector/values.yaml
