@@ -29,4 +29,4 @@ config:
       default_alert_pipeline:
         events: ["hpa_scaling"]
         fetchers: ["target_deployment"]
-        notifiers: ["slack/alert"]
+        notifiers: ["slack/alert-hpa"]

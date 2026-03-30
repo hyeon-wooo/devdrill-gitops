@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: "https://github.com/hyeon-wooo/kube-event-collector/charts"
-      chart: kube-event-collector
-      targetRevision: 0.1.0
+    - repoURL: "https://github.com/hyeon-wooo/kube-event-collector.git"
+      path: "charts/kube-event-collector"
+      targetRevision: "main"
       helm:
         valueFiles:
           - $myconfig/cluster/app/event-collector/values.yaml
