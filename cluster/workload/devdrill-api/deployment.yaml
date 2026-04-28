@@ -42,7 +42,7 @@ spec:
         - name: harbor-auth
       containers:
         - name: devdrill-api
-          image: docker.hyeonwoo.com/devdrill/devdrill-api:sha-ae9cca0
+          image: docker.hyeonwoo.com/devdrill/devdrill-api:sha-9428f93
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
