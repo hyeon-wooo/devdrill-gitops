@@ -42,7 +42,7 @@ spec:
         - name: ghcr-auth
       containers:
         - name: devdrill-api
-          image: ghcr.io/hyeon-wooo/devdrill-api:sha-1dcad3d
+          image: ghcr.io/hyeon-wooo/devdrill-api:sha-0167761
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
