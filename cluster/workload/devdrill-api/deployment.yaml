@@ -39,10 +39,10 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
       imagePullSecrets:
-        - name: harbor-auth
+        - name: ghcr-auth
       containers:
         - name: devdrill-api
-          image: docker.hyeonwoo.com/devdrill/devdrill-api:sha-1c71690
+          image: ghcr.io/hyeon-wooo/devdrill-api:sha-1dcad3d
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
