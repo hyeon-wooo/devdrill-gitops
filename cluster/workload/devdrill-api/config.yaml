@@ -11,7 +11,7 @@ data:
   NODE_ENV: "production"
   PORT: "3000"
 
-  FILE_BASE_URL: "https://devdrill-api.hyeonwoo.com"
+  FILE_BASE_URL: "https://api.devdrill.net"
   FILE_PUBLIC_STORAGE: "/app/data/public"
 
   OTEL_NODE_RESOURCE_DETECTORS: "none"

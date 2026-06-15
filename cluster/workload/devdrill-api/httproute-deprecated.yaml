@@ -8,7 +8,7 @@ spec:
     - name: devdrill-gateway
       namespace: nginx-gateway
   hostnames:
-    - "api.devdrill.net"
+    - "devdrill-api.hyeonwoo.com"
   rules:
     - matches:
         - path:
