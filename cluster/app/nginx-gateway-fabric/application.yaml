@@ -1,27 +1,27 @@
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: nginx-gateway-fabric
-#   namespace: argocd
-# spec:
-#   project: default
-#   sources:
-#     - repoURL: oci://ghcr.io/nginxinc/charts/nginx-gateway-fabric
-#       chart: nginx-gateway-fabric
-#       targetRevision: 1.5.0
-#       helm:
-#         releaseName: ngf
-#         valueFiles:
-#           - $myconfig/cluster/app/nginx-gateway-fabric/values.yaml
-#     - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
-#       targetRevision: HEAD
-#       ref: myconfig
-#   destination:
-#     server: https://kubernetes.default.svc
-#     namespace: nginx-gateway
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-#     syncOptions:
-#       - CreateNamespace=true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-gateway-fabric
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: oci://ghcr.io/nginxinc/charts/nginx-gateway-fabric
+      chart: nginx-gateway-fabric
+      targetRevision: 1.5.0
+      helm:
+        releaseName: ngf
+        valueFiles:
+          - $myconfig/cluster/app/nginx-gateway-fabric/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx-gateway
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
