@@ -28,7 +28,7 @@ spec:
             name: devdrill-tls-secret
 
     # hyeonwoo.com
-    - name: hyeonwoo-com-https
+    - name: hyeonwoo-com-root-https
       protocol: HTTPS
       port: 443
       hostname: "hyeonwoo.com"
