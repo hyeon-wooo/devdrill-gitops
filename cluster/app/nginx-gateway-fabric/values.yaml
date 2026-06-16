@@ -1,9 +1,8 @@
 service:
   type: NodePort
 
-replicaCount: 3
-
 nginxGateway:
+  replicaCount: 3
   hostPorts:
     enable: true
     httpPort: 80
