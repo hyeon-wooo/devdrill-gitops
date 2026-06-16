@@ -20,3 +20,7 @@ affinity:
               values:
                 - ngf # helm release 이름
         topologyKey: "kubernetes.io/hostname"
+
+tolerations:
+  - key: dedicated
+    operator: Exists
