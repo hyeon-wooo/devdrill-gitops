@@ -12,3 +12,13 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "api.devdrill.net"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: devdrill-tls-secret
+            namespace: nginx-gateway
