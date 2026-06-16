@@ -1,0 +1,22 @@
+service:
+  type: NodePort
+
+replicaCount: 3
+
+nginxGateway:
+  hostPorts:
+    enable: true
+    httpPort: 80
+    httpsPort: 443
+
+# 노드 당 Pod 1개 강제
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: In
+              values:
+                - ngf # helm release 이름
+        topologyKey: "kubernetes.io/hostname"
