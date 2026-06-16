@@ -12,6 +12,8 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+
+    # api.devdrill.net
     - name: https
       protocol: HTTPS
       port: 443
@@ -24,4 +26,29 @@ spec:
         certificateRefs:
           - kind: Secret
             name: devdrill-tls-secret
-            namespace: nginx-gateway
+
+    # hyeonwoo.com
+    - name: hyeonwoo-com-https
+      protocol: HTTPS
+      port: 443
+      hostname: "hyeonwoo.com"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: hyeonwoo-tls
+    - name: hyeonwoo-com-https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.hyeonwoo.com"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: hyeonwoo-tls
