@@ -1,0 +1,44 @@
+crds:
+  enabled: true
+
+logLevel: warn
+
+# affinity (operator)
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100 # 가장 높은 가중치를 주어 home51을 강하게 선호하도록 유도
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - home51
+
+# # affinity (webhook)
+webhook:
+  enabled: true
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - home51
+
+# affinity (cert controller)
+certController:
+  enabled: true
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - home51

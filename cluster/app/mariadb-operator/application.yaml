@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mariadb-operator
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://mariadb-operator.github.io/mariadb-operator
+      chart: mariadb-operator
+      targetRevision: 26.6.0
+      helm:
+        valueFiles:
+          - $myconfig/cluster/app/mariadb-operator/values.yaml
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      ref: myconfig
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mariadb
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
