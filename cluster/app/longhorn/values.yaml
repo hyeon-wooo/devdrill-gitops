@@ -6,6 +6,7 @@ persistence:
 defaultSettings:
   # UI 대시보드나 API로 볼륨 생성 시 적용될 기본 복제본 개수
   defaultReplicaCount: '{"v1":"2","v2":"2"}'
+  taintToleration: "dedicated:NoSchedule"
 
 global:
   tolerations:
