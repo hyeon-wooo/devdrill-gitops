@@ -1,0 +1,8 @@
+persistence:
+  # 자동 생성되는 StorageClass 리소스에 적용될 replica count
+  # default: 3, 노드 3대 중 하나가 죽으면 desired state에서 벗어나므로 2로 조정
+  defaultClassReplicaCount: 2
+
+defaultSettings:
+  # UI 대시보드나 API로 볼륨 생성 시 적용될 기본 복제본 개수
+  defaultReplicaCount: '{"v1":"2","v2":"2"}'
