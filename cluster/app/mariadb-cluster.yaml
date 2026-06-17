@@ -2,7 +2,7 @@ apiVersion: mariadb.mmontes.io/v1alpha1
 kind: MariaDB
 metadata:
   name: mariadb-cluster
-  namespace: default
+  namespace: mariadb
 spec:
   image: mariadb:10.11
 
