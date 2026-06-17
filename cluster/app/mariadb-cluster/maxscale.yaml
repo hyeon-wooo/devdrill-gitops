@@ -34,3 +34,7 @@ spec:
                 values:
                   - maxscale # operator가 붙이는 기본 라벨
           topologyKey: kubernetes.io/hostname
+
+  tolerations:
+    - key: dedicated
+      operator: Exists
