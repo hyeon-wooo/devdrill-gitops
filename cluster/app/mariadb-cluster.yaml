@@ -1,0 +1,57 @@
+apiVersion: mariadb.mmontes.io/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb-cluster
+  namespace: default
+spec:
+  image: mariadb:10.11
+
+  rootPasswordSecretKeyRef:
+    name: mariadb-secret
+    key: root-password
+
+  # 1 Active + 1 Standby
+  replicas: 2
+
+  replication:
+    enabled: true
+    primary:
+      podIndex: 0 # mariadb-cluster-0 pod를 Primary(Active)로 고정
+      automaticFailover: true # Active 다운 시 자동으로 Standby를 마스터로 승격
+    replica:
+      waitPoint: after_commit # 반동기 방식으로 데이터 안정성 확보
+
+  storage:
+    size: 20Gi
+    storageClassName: longhorn
+
+  maxScale:
+    enabled: true
+    kubernetesService:
+      # 외부 애플리케이션들이 바라볼 고정 엔드포인트 서비스 이름
+      name: mariadb-proxy
+
+    # MaxScale 자체의 고가용성을 위해 2개 배치 (1개 다운 시에도 프록시 유지)
+    replicas: 2
+
+    # home51 노드에 우선적으로 배치 + 한 노드에 최대 1개만 배치
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - home51
+
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - maxscale # 오퍼레이터가 MaxScale 파드에 부여하는 기본 라벨명
+            topologyKey: kubernetes.io/hostname
