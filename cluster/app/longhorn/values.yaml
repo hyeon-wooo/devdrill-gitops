@@ -12,6 +12,7 @@ global:
     - key: dedicated
       operator: Exists
 
-preUpgradeChecker:
-  jobEnabled: false
-  upgradeVersionCheck: false
+# NOTE: 첫 설치 시만 false, 이후 true(기본값)으로 변경
+# preUpgradeChecker:
+#  jobEnabled: false
+#  upgradeVersionCheck: false
