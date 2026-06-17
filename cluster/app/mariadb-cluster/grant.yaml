@@ -1,0 +1,16 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: mariadb-cluster-mariadb-sys-global-priv
+  namespace: mariadb
+spec:
+  mariaDbRef:
+    name: mariadb-cluster
+  privileges:
+    - "USAGE"
+  roles: []
+  database: "*"
+  table: "*"
+  username: "mariadb.sys"
+  host: "localhost"
+  grantOption: true
