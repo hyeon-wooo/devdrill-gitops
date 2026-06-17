@@ -11,3 +11,7 @@ global:
   tolerations:
     - key: dedicated
       operator: Exists
+
+preUpgradeChecker:
+  jobEnabled: false
+  upgradeVersionCheck: false
