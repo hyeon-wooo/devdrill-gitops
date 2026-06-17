@@ -1,7 +1,7 @@
 crds:
   enabled: true
 
-logLevel: debug
+logLevel: info
 
 # affinity (operator)
 affinity:
