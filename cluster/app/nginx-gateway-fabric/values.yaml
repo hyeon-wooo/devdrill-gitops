@@ -11,6 +11,11 @@ service:
       protocol: TCP
       name: https
       nodePort: 30443
+    - port: 36030
+      targetPort: 36030
+      protocol: TCP
+      name: mariadb-tcp
+      nodePort: 36030
 
 nginxGateway:
   replicaCount: 3
