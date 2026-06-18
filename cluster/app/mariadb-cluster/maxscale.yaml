@@ -1,40 +1,40 @@
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: MaxScale
-metadata:
-  name: mariadb-proxy
-  namespace: mariadb
-spec:
-  mariaDbRef:
-    name: mariadb-cluster
+# apiVersion: k8s.mariadb.com/v1alpha1
+# kind: MaxScale
+# metadata:
+#   name: mariadb-proxy
+#   namespace: mariadb
+# spec:
+#   mariaDbRef:
+#     name: mariadb-cluster
 
-  # 고가용성 구성 (2개 파드)
-  replicas: 2
+#   # 고가용성 구성 (2개 파드)
+#   replicas: 2
 
-  # 고정 엔드포인트로 사용할 서비스 이름 정의
-  kubernetesService:
-    name: mariadb-proxy
+#   # 고정 엔드포인트로 사용할 서비스 이름 정의
+#   kubernetesService:
+#     name: mariadb-proxy
 
-  # 스케줄링 (home51 우선 + 노드당 최대 1개)
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                  - home51
-    podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - maxscale # operator가 붙이는 기본 라벨
-          topologyKey: kubernetes.io/hostname
+#   # 스케줄링 (home51 우선 + 노드당 최대 1개)
+#   affinity:
+#     nodeAffinity:
+#       preferredDuringSchedulingIgnoredDuringExecution:
+#         - weight: 100
+#           preference:
+#             matchExpressions:
+#               - key: kubernetes.io/hostname
+#                 operator: In
+#                 values:
+#                   - home51
+#     podAntiAffinity:
+#       requiredDuringSchedulingIgnoredDuringExecution:
+#         - labelSelector:
+#             matchExpressions:
+#               - key: app.kubernetes.io/name
+#                 operator: In
+#                 values:
+#                   - maxscale # operator가 붙이는 기본 라벨
+#           topologyKey: kubernetes.io/hostname
 
-  tolerations:
-    - key: dedicated
-      operator: Exists
+#   tolerations:
+#     - key: dedicated
+#       operator: Exists
