@@ -52,3 +52,12 @@ spec:
         certificateRefs:
           - kind: Secret
             name: hyeonwoo-tls
+
+    - name: mariadb-tcp-listener
+      protocol: TCP
+      port: 36030
+      allowedRoutes:
+        namespaces:
+          from: All
+        kinds:
+          - kind: TCPRoute
