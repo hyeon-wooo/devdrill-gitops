@@ -16,4 +16,4 @@ spec:
             value: /
       backendRefs:
         - name: devdrill-api
-          port: 3010
+          port: 3000
