@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: px-api
+  namespace: project-exhibition
+  labels:
+    app: px-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: px-api
+  template:
+    metadata:
+      labels:
+        app: px-api
+    spec:
+      containers:
+        - name: px-api
+          image: ghcr.io/hyeon-wooo/project-exhibition-api:sha-584fb89
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: TZ
+              value: Asia/Seoul
+          envFrom:
+            - configMapRef: { name: px-api-cm }
+            - secretRef: { name: px-api-secret }
+          volumeMounts:
+            - name: px-files
+              mountPath: /app/files
+            - name: px-public
+              mountPath: /app/public
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+      imagePullSecrets:
+        - name: ghcr-auth
+      volumes:
+        - name: px-files
+          hostPath:
+            path: /share/px/files
+            type: DirectoryOrCreate
+        - name: px-public
+          hostPath:
+            path: /share/px/public
+            type: DirectoryOrCreate

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: px-api-service
+  namespace: project-exhibition
+spec:
+  type: ClusterIP
+  selector:
+    app: px-api
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

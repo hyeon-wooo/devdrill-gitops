@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: px-api-cm
+  namespace: project-exhibition
+  labels:
+    app: px-api
+data:
+  NODE_ENV: 'production'
+  PORT: '3000'
+  IMAGE_BASE_URL: 'https://px-api.hyeonwoo.com/image'
+  IMAGE_UPLOAD_STORAGE_PATH: '/app/files'
+  IMAGE_PUBLIC_STORAGE_PATH: '/app/public'
