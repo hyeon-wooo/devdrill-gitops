@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: px-api
-          image: ghcr.io/hyeon-wooo/project-exhibition-api:sha-584fb89
+          image: ghcr.io/hyeon-wooo/project-exhibition-api:sha-431d573
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
