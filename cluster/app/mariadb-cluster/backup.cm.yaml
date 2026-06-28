@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-backup-script
+  namespace: mariadb
+data:
+  backup.sh: |
+    #!/bin/bash
+
+    # Required environment variables:
+    # - DB_HOST
+    # - DB_USER
+    # - DB_PASSWORD
+    # - R2_ACCOUNT_ID
+    # - AWS_ACCESS_KEY_ID
+    # - AWS_SECRET_ACCESS_KEY
+
+    BACKUP_DIR="/tmp/backup"
+    DATE=$(date +%Y%m%d_%H%M%S)
+    FILENAME="db_${DATE}.sql.gz"
+    FILEPATH="${BACKUP_DIR}/${FILENAME}"
+    LOG_FILE="${BACKUP_DIR}/backup.log"
+
+    mkdir -p ${BACKUP_DIR}
+
+    echo "[rdb][$(date)] 백업 시작" >> ${LOG_FILE}
+
+    find ${BACKUP_DIR} -name "db_*.sql.gz" -delete
+
+    mysqldump -h "${DB_HOST}" -u"${DB_USER}" -p"${DB_PASSWORD}" devdrill 2>> ${LOG_FILE} | gzip >${FILEPATH}
+
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+      echo "[rdb][$(date)] 백업 성공: ${FILEPATH}" >> ${LOG_FILE}
+    else
+      echo "[rdb][$(date)] 백업 실패" >> ${LOG_FILE}
+      cat ${LOG_FILE} >&2
+      exit 1
+    fi
+
+    #
+    # Send to R2
+    #
+
+    R2_BUCKET="devdrill-backup"
+    R2_ENDPOINT_URL="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+    export AWS_DEFAULT_REGION="auto"
+
+    aws s3 cp \
+      ${FILEPATH} s3://${R2_BUCKET}/db/${FILENAME} \
+      --endpoint-url ${R2_ENDPOINT_URL} >> ${LOG_FILE} 2>&1
+
+    if [ $? -eq 0 ]; then
+      echo "[rdb][$(date)] R2 업로드 완료" >> ${LOG_FILE}
+
+      # 이전 백업본 삭제
+      aws s3 rm s3://${R2_BUCKET}/db/ \
+        --recursive \
+        --exclude "*" \
+        --include "*.sql.gz" \
+        --exclude "${FILENAME}" \
+        --endpoint-url ${R2_ENDPOINT_URL} >> ${LOG_FILE} 2>&1
+
+      # 백업 시작 시간 이전의 wal 삭제
+      ALL_WAL_FILES=$(aws s3api list-objects-v2 \
+        --bucket "${R2_BUCKET}" \
+        --prefix "db/wal/" \
+        --endpoint-url ${R2_ENDPOINT_URL} \
+        --query "Contents[].Key" \
+        --output text 2>> ${LOG_FILE})
+
+      if [ -n "$ALL_WAL_FILES" ] && [ "$ALL_WAL_FILES" != "None" ]; then
+        echo "$ALL_WAL_FILES" | tr '\t' '\n' | while read -r FILE_KEY; do
+          [ -z "$FILE_KEY" ] && continue
+
+          FILE_DATE=$(echo "$FILE_KEY" | grep -oE '[0-9]{8}_[0-9]{9}')
+
+          if [[ -n "$FILE_DATE" && "$FILE_DATE" < "$DATE" ]]; then
+            aws s3 rm "s3://${R2_BUCKET}/${FILE_KEY}" \
+              --endpoint-url ${R2_ENDPOINT_URL} >> ${LOG_FILE} 2>&1
+          fi
+        done
+      fi
+
+      echo "[rdb][$(date)] R2 정리 완료" >> ${LOG_FILE}
+    else
+      echo "[rdb][$(date)] R2 업로드 실패" >> ${LOG_FILE}
+      cat ${LOG_FILE} >&2
+      exit 1
+    fi
+
+    rm -f $FILEPATH
+
+    echo "[rdb][$(date)] 백업 프로세스 종료" >> ${LOG_FILE}
+    cat ${LOG_FILE}

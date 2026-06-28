@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mariadb-backup
+  namespace: mariadb
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          tolerations:
+            - key: dedicated
+              operator: Exists
+          containers:
+            - name: mariadb-backup
+              image: alpine:3.19
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache mariadb-client aws-cli bash && \
+                  exec /bin/bash /scripts/backup.sh
+              env:
+                - name: DB_HOST
+                  value: "mariadb-proxy.mariadb.svc.cluster.local"
+                - name: DB_USER
+                  value: "root"
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mariadb-secret
+                      key: root-password
+                - name: R2_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: mariadb-secret
+                      key: r2-account-id
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: mariadb-secret
+                      key: r2-access-key-id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: mariadb-secret
+                      key: r2-secret-access-key
+              volumeMounts:
+                - name: script-volume
+                  mountPath: /scripts
+          volumes:
+            - name: script-volume
+              configMap:
+                name: mariadb-backup-script
+                defaultMode: 0755
