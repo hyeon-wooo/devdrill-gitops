@@ -123,6 +123,7 @@ spec:
               - node_disk_writes_completed_total
               - node_network_receive_bytes_total
               - node_network_transmit_bytes_total
+              - up
 
     exporters:
       otlphttp/grafana:
