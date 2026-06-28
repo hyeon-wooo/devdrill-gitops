@@ -143,17 +143,17 @@ spec:
           processors: [memory_limiter, k8sattributes, transform, batch]
           exporters: [otlphttp/grafana]
 
-        metrics/node:
-          receivers: [prometheus/node_exporter]
-          processors:
-            [
-              filter/node_essential,
-              memory_limiter,
-              k8sattributes,
-              transform,
-              batch,
-            ]
-          exporters: [otlphttp/grafana]
+        # metrics/node:
+        #   receivers: [prometheus/node_exporter]
+        #   processors:
+        #     [
+        #       filter/node_essential,
+        #       memory_limiter,
+        #       k8sattributes,
+        #       transform,
+        #       batch,
+        #     ]
+        #   exporters: [otlphttp/grafana]
 
         metrics/collector:
           receivers: [prometheus/ds-collector-app, prometheus/ds-collector]
