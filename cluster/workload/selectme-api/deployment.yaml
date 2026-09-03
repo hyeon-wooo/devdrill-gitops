@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selectme-api
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: api
+    env: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selectme
+      tier: api
+      env: dev
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: selectme
+        tier: api
+        env: dev
+    spec:
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "system"
+      imagePullSecrets:
+        - name: ecr-auth
+      containers:
+        - name: selectme-api
+          # 태그는 커밋 SHA 기반 불변 태그다. selectme-api 레포의 GitHub Actions 가
+          # 이 값을 바꿔 커밋하면 그것이 곧 배포다. 가변 태그로 되돌리지 말 것.
+          image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-api:dev-d3b7c47
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: selectme-api-cm
+            # AWS Secrets Manager 조회용 자격증명. 앱은 부팅 시 aws.secrets.* 를 전부
+            # 읽어오므로 이 시크릿이 없으면 기동 자체가 실패한다. init-private 참고.
+            - secretRef:
+                name: selectme-api-aws
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          # 부팅 시 Secrets Manager 왕복이 있어 첫 응답까지 시간이 걸린다. startupProbe 로
+          # 그 구간을 덮고, liveness 는 startup 통과 뒤부터 짧은 주기로 돈다.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 5
+            failureThreshold: 24 # 최대 120초
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3

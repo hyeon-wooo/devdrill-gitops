@@ -52,3 +52,18 @@ spec:
         certificateRefs:
           - kind: Secret
             name: hyeonwoo-tls
+
+    # dev-api.selectme.co.kr (selectme 개발 API)
+    # 인증서는 cluster/app/certificate-selectme.yaml 이 만든다.
+    - name: selectme-dev-api-https
+      protocol: HTTPS
+      port: 443
+      hostname: "dev-api.selectme.co.kr"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: selectme-dev-api-tls

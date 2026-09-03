@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selectme-api-cm
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: api
+    env: dev
+data:
+  # 앱은 이 값으로 src/common/config/development.ts 를 고른다. DB/버킷/시크릿 이름이
+  # 전부 여기서 갈리므로 다른 값을 넣으면 개발 리소스를 벗어난다.
+  NODE_ENV: "development"
+  PORT: "3000"
+  TZ: "Asia/Seoul"
+
+  # development 설정은 telemetry.enabled=false 다. 클러스터 Collector 로 보내려면
+  # 그 값을 켜고 OTEL_EXPORTER_OTLP_ENDPOINT 를 여기에 추가한다.
+  OTEL_ENABLED: "false"

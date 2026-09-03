@@ -1,0 +1,19 @@
+# 게이트웨이가 참조하는 TLS 시크릿을 만드는 인증서. hyeonwoo-com-wildcard 와 같은 방식으로
+# nginx-gateway 네임스페이스에 둔다 — 게이트웨이는 자기 네임스페이스의 시크릿만 읽는다.
+#
+# 발급 전에 가비아에 CNAME 이 있어야 한다. 없으면 challenge 가 pending 에서 멈춘다.
+#   _acme-challenge.dev-api.selectme.co.kr.  CNAME  _acme-challenge.dev-api.selectme.co.kr.hyeonwoo.com.
+# (오른쪽 이름은 Cloudflare 존에 있기만 하면 되고 실제 레코드를 미리 만들 필요는 없다.
+#  cert-manager 가 그 이름으로 TXT 를 쓴다.)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selectme-dev-api
+  namespace: nginx-gateway
+spec:
+  secretName: selectme-dev-api-tls
+  issuerRef:
+    name: letsencrypt-wildcard-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - dev-api.selectme.co.kr

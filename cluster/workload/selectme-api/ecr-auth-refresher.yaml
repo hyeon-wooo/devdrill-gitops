@@ -1,0 +1,81 @@
+# ECR 로그인 토큰은 12시간이면 만료된다. 홈서버 클러스터에는 IRSA 가 없어 노드가 스스로
+# ECR 자격증명을 얻지 못하므로, imagePullSecret 을 주기적으로 다시 만들어 준다.
+# 갱신을 멈추면 새 이미지 pull 만 실패한다(이미 떠 있는 파드는 영향 없음).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ecr-auth-refresher
+  namespace: selectme-dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ecr-auth-refresher
+  namespace: selectme-dev
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ecr-auth-refresher
+  namespace: selectme-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ecr-auth-refresher
+subjects:
+  - kind: ServiceAccount
+    name: ecr-auth-refresher
+    namespace: selectme-dev
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecr-auth-refresher
+  namespace: selectme-dev
+spec:
+  # 토큰 수명(12h)의 절반 주기. 한 번 실패해도 다음 실행 전까지 토큰이 살아 있다.
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: ecr-auth-refresher
+          restartPolicy: OnFailure
+          nodeSelector:
+            dedicated: devdrill
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "devdrill"
+          containers:
+            - name: refresh
+              # aws-cli 와 kubectl 이 함께 들어 있는 이미지. 둘 중 하나만 있는 이미지를 쓰면
+              # 토큰을 받아도 시크릿을 쓸 수 없다.
+              image: alpine/k8s:1.31.0
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  TOKEN=$(aws ecr get-login-password --region "$AWS_REGION")
+                  # create --dry-run 으로 매니페스트를 만들어 apply 한다. delete 후 create 로
+                  # 하면 그 사이에 뜬 파드가 시크릿을 못 찾는 창이 생긴다.
+                  kubectl create secret docker-registry ecr-auth \
+                    --docker-server="$ECR_REGISTRY" \
+                    --docker-username=AWS \
+                    --docker-password="$TOKEN" \
+                    --namespace=selectme-dev \
+                    --dry-run=client -o yaml | kubectl apply -f -
+              env:
+                - name: ECR_REGISTRY
+                  value: "463470966956.dkr.ecr.ap-northeast-2.amazonaws.com"
+              envFrom:
+                - secretRef:
+                    name: selectme-api-aws

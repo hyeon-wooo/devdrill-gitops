@@ -1,0 +1,76 @@
+# 개발용 Redis. 영속성을 끄므로 StatefulSet/PVC 가 필요 없다 — 파드가 죽으면 캐시는
+# 비워진 채로 다시 뜬다. 세션이나 큐를 여기 의존시키면 안 된다.
+apiVersion: v1
+kind: Service
+metadata:
+  name: selectme-redis
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: redis
+    env: dev
+spec:
+  selector:
+    app: selectme
+    tier: redis
+    env: dev
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selectme-redis
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: redis
+    env: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selectme
+      tier: redis
+      env: dev
+  strategy:
+    # 같은 포트를 쓰는 단일 인스턴스라 새 파드를 먼저 띄우면 안 된다.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: selectme
+        tier: redis
+        env: dev
+    spec:
+      nodeSelector:
+        dedicated: devdrill
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "devdrill"
+      containers:
+        - name: redis
+          image: redis:7.4-alpine
+          # RDB 스냅샷과 AOF 를 모두 끈다. 기본값은 RDB 가 켜져 있어 디스크를 쓴다.
+          args: ["redis-server", "--save", "", "--appendonly", "no"]
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            periodSeconds: 20
