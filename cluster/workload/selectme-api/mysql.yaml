@@ -48,11 +48,11 @@ spec:
         env: dev
     spec:
       nodeSelector:
-        dedicated: devdrill
+        dedicated: system
       tolerations:
         - key: "dedicated"
           operator: "Equal"
-          value: "devdrill"
+          value: "system"
       containers:
         - name: mysql
           image: mysql:8.4
@@ -98,7 +98,8 @@ spec:
         name: data
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: longhorn
+        # storageclass.yaml 참고. replica 1개를 파드와 같은 노드에 고정한다.
+        storageClassName: selectme-longhorn-local
         resources:
           requests:
             storage: 20Gi

@@ -50,11 +50,11 @@ spec:
           serviceAccountName: ecr-auth-refresher
           restartPolicy: OnFailure
           nodeSelector:
-            dedicated: devdrill
+            dedicated: system
           tolerations:
             - key: "dedicated"
               operator: "Equal"
-              value: "devdrill"
+              value: "system"
           containers:
             - name: refresh
               # aws-cli 와 kubectl 이 함께 들어 있는 이미지. 둘 중 하나만 있는 이미지를 쓰면

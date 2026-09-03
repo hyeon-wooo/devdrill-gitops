@@ -1,0 +1,22 @@
+# 개발 DB 전용 StorageClass.
+#
+# 기본 `longhorn` SC 는 replica 를 2개 두고 노드 3대 중 아무 데나 배치한다. 파드가
+# home51 에 있어도 replica 는 home52/53 에 있을 수 있고, 그 노드를 빼면 볼륨이 죽는다.
+# 싱글노드로 줄일 계획이면 그 배치를 운에 맡기면 안 된다.
+#
+# `dataLocality: strict-local` 은 replica 를 **볼륨이 붙은 노드에** 두도록 강제한다.
+# replica 1개와 묶으면 "파드가 있는 노드에 데이터도 있다" 가 보장돼서, 나중에 다른
+# 노드를 빼도 이 볼륨은 영향을 받지 않는다. 대신 이중화가 없으므로 개발 DB 에만 쓴다.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: selectme-longhorn-local
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "1"
+  dataLocality: strict-local
+  staleReplicaTimeout: "30"
+  fsType: ext4

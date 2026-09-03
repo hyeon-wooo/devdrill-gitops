@@ -47,11 +47,11 @@ spec:
         env: dev
     spec:
       nodeSelector:
-        dedicated: devdrill
+        dedicated: system
       tolerations:
         - key: "dedicated"
           operator: "Equal"
-          value: "devdrill"
+          value: "system"
       containers:
         - name: redis
           image: redis:7.4-alpine
