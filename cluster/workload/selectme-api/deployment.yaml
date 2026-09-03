@@ -38,7 +38,7 @@ spec:
         - name: selectme-api
           # 태그는 커밋 SHA 기반 불변 태그다. selectme-api 레포의 GitHub Actions 가
           # 이 값을 바꿔 커밋하면 그것이 곧 배포다. 가변 태그로 되돌리지 말 것.
-          image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-api:dev-7e137db
+          image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-api:dev-e68cc0a
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
