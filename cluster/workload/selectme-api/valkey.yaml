@@ -1,0 +1,89 @@
+# 개발용 Valkey 8.1. 운영(ElastiCache Valkey 8.1)과 같은 엔진·같은 AUTH 방식으로 맞춘다.
+# selectme-redis(redis.yaml)에서 옮겨 오는 중이다(selectme-api 레포 .private/redis-migration.md).
+# 옮기는 동안 둘이 함께 뜨고, 끝나면 redis.yaml 을 지운다.
+#
+# 비밀번호는 selectme-valkey-secret(VALKEY_PASSWORD)에 있다. git 에 올리지 않는다.
+#   kubectl apply -f init-private/selectme-api/valkey.secret.yaml
+# 클러스터 내부망이라 TLS 는 켜지 않는다(TLS 경로는 운영 배포의 readiness 가 검증한다).
+# 영속성은 redis.yaml 과 같이 끈다.
+apiVersion: v1
+kind: Service
+metadata:
+  name: selectme-valkey
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: valkey
+    env: dev
+spec:
+  selector:
+    app: selectme
+    tier: valkey
+    env: dev
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selectme-valkey
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: valkey
+    env: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selectme
+      tier: valkey
+      env: dev
+  strategy:
+    # 같은 포트를 쓰는 단일 인스턴스라 새 파드를 먼저 띄우면 안 된다.
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: selectme
+        tier: valkey
+        env: dev
+    spec:
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "system"
+      containers:
+        - name: valkey
+          image: valkey/valkey:8.1-alpine
+          env:
+            - name: VALKEY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: selectme-valkey-secret
+                  key: VALKEY_PASSWORD
+          # RDB 스냅샷과 AOF 를 모두 끈다. $(VALKEY_PASSWORD) 는 kubelet 이 env 값으로 바꿔 넣는다.
+          args: ["valkey-server", "--save", "", "--appendonly", "no", "--requirepass", "$(VALKEY_PASSWORD)"]
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # 인증 없이 PING 하면 NOAUTH 오류가 와도 종료 코드는 0 이라 PONG 을 직접 확인한다
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", 'valkey-cli -a "$VALKEY_PASSWORD" --no-auth-warning ping | grep -q PONG']
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", 'valkey-cli -a "$VALKEY_PASSWORD" --no-auth-warning ping | grep -q PONG']
+            periodSeconds: 20
