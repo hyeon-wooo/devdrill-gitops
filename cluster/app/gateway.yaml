@@ -67,3 +67,17 @@ spec:
         certificateRefs:
           - kind: Secret
             name: selectme-dev-api-tls
+
+    # *.sttep.work (sttep dev·prod). 인증서는 cluster/app/certificate-sttep.yaml 이 만든다.
+    - name: sttep-https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.sttep.work"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: sttep-tls

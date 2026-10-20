@@ -1,0 +1,60 @@
+# sttep dev Redis. 영속 데이터를 두지 않는 용도(세션 보조·락)라 볼륨 없이 띄운다.
+# 버전은 로컬(source/docker-compose.yml)과 맞춘다. 비밀번호는 Secret redis (init-private/sttep/api/).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: sttep-dev
+  labels:
+    app: sttep
+    tier: redis
+    env: dev
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: sttep
+      tier: redis
+      env: dev
+  template:
+    metadata:
+      labels:
+        app: sttep
+        tier: redis
+        env: dev
+    spec:
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "system"
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args: ["--requirepass", "$(REDIS_PASSWORD)", "--save", "", "--appendonly", "no"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            periodSeconds: 20

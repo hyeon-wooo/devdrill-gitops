@@ -1,0 +1,18 @@
+# 비밀이 아닌 설정. 변수 목록과 뜻은 sttep-api 레포의 src/common/config/env.ts.
+# 비밀(DATABASE_URL, REDIS_URL, JWT_SECRET)은 Secret sttep-api (init-private/sttep/api/secret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sttep-api
+  namespace: sttep-dev
+  labels:
+    app: sttep
+    tier: api
+    env: dev
+data:
+  NODE_ENV: "development"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  JWT_ISSUER: "https://dev-api.sttep.work"
+  CORS_ORIGINS: "https://dev-app.sttep.work"
+  COOKIE_SECURE: "true"

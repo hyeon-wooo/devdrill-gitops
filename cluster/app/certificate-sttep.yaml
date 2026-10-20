@@ -1,0 +1,16 @@
+# sttep.work 와일드카드 인증서. dev(dev-api.sttep.work 등)와 prod(api.sttep.work 등)가 같이 쓴다.
+# 게이트웨이는 자기 네임스페이스의 시크릿만 읽으므로 nginx-gateway 에 둔다.
+# sttep.work 는 Cloudflare 존이라 ClusterIssuer 의 Cloudflare 솔버가 TXT 를 직접 쓴다.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sttep-wildcard
+  namespace: nginx-gateway
+spec:
+  secretName: sttep-tls
+  issuerRef:
+    name: letsencrypt-wildcard-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "sttep.work"
+    - "*.sttep.work"
