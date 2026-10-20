@@ -1,0 +1,14 @@
+# 웹 런타임 설정. 이미지의 /config.js 를 이 값으로 덮어쓴다(sttep-web 레포의 src/lib/config.ts 스키마).
+# 바꾸면 deployment.yaml 의 sttep.work/config-revision 도 올린다.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sttep-web
+  namespace: sttep-dev
+  labels:
+    app: sttep
+    tier: web
+    env: dev
+data:
+  config.js: |
+    window.__CONFIG__ = {apiBaseUrl: 'https://dev-api.sttep.work'}
