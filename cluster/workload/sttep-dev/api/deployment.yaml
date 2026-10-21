@@ -44,7 +44,7 @@ spec:
         - name: migrate
           # 태그는 커밋 SHA 기반 불변 태그다. sttep-api 레포의 GitHub Actions 가 이 줄과 아래 앱 컨테이너
           # 줄을 함께 바꿔 커밋하면 그것이 곧 배포다. 가변 태그로 되돌리지 말 것.
-          image: ghcr.io/hyeon-wooo/sttep-api:sha-1615cfe
+          image: ghcr.io/hyeon-wooo/sttep-api:sha-2437223
           command: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
           envFrom:
             - secretRef:
@@ -58,7 +58,7 @@ spec:
               memory: 512Mi
       containers:
         - name: sttep-api
-          image: ghcr.io/hyeon-wooo/sttep-api:sha-1615cfe
+          image: ghcr.io/hyeon-wooo/sttep-api:sha-2437223
           ports:
             - containerPort: 3000
           envFrom:
