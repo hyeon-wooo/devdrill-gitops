@@ -1,0 +1,96 @@
+# sttep dev 객체 저장소(S3 호환, RustFS). 브라우저가 서명된 주소로 파일을 직접 올리고 받는다.
+# dev 는 인스턴스 하나다. 데이터는 PVC rustfs-data (pvc.yaml) 에 두고, 자격 증명은 Secret rustfs (init-private/sttep/rustfs/).
+# 버전은 로컬(source/docker-compose.yml)과 맞춘다. 콘솔(웹 UI)은 열지 않는다. 컨테이너는 uid 10001 로 돈다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rustfs
+  namespace: sttep-dev
+  labels:
+    app: sttep
+    tier: rustfs
+    env: dev
+spec:
+  replicas: 1
+  # PVC 가 ReadWriteOnce 이므로 롤링이 아니라 내렸다 올린다
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: sttep
+      tier: rustfs
+      env: dev
+  template:
+    metadata:
+      labels:
+        app: sttep
+        tier: rustfs
+        env: dev
+    spec:
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "system"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: rustfs
+          image: rustfs/rustfs:1.0.3
+          env:
+            - name: RUSTFS_VOLUMES
+              value: "/data"
+            - name: RUSTFS_ADDRESS
+              value: ":9000"
+            - name: RUSTFS_CONSOLE_ENABLE
+              value: "false"
+            - name: RUSTFS_OBS_LOGGER_LEVEL
+              value: "warn"
+            # 브라우저가 서명된 주소로 올리고 받을 때의 Origin. 앱 주소만 허용한다
+            - name: RUSTFS_CORS_ALLOWED_ORIGINS
+              value: "https://dev-app.sttep.work"
+            - name: RUSTFS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: rustfs
+                  key: RUSTFS_ACCESS_KEY
+            - name: RUSTFS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: rustfs
+                  key: RUSTFS_SECRET_KEY
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: logs
+              mountPath: /logs
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rustfs-data
+        - name: logs
+          emptyDir: {}

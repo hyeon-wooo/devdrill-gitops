@@ -1,0 +1,13 @@
+# 파일 업로드 본문 크기. NGINX 의 기본값(1m)이면 서명된 주소로 올리는 파일(25MB 까지)이 게이트웨이에서 막힌다.
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: rustfs-upload-body
+  namespace: sttep-dev
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: rustfs
+  body:
+    maxSize: "30m"

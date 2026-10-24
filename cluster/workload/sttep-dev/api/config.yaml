@@ -1,5 +1,6 @@
 # 비밀이 아닌 설정. 변수 목록과 뜻은 sttep-api 레포의 src/common/config/env.ts.
-# 비밀(DATABASE_URL, REDIS_URL, JWT_SECRET)은 Secret sttep-api (init-private/sttep/api/secret.yaml).
+# 비밀(DATABASE_URL, REDIS_URL, JWT_SECRET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY)은 Secret sttep-api (init-private/sttep/api/secret.yaml).
+# S3_* 는 같은 네임스페이스의 객체 저장소(rustfs/)다. 키가 Secret 에 없으면 api 는 뜨되 파일 기능만 503 이다.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -16,3 +17,8 @@ data:
   JWT_ISSUER: "https://dev-api.sttep.work"
   CORS_ORIGINS: "https://dev-app.sttep.work"
   COOKIE_SECURE: "true"
+  S3_ENDPOINT: "http://rustfs:9000"
+  S3_PUBLIC_ENDPOINT: "https://dev-files.sttep.work"
+  S3_BUCKET: "sttep-dev-files"
+  S3_FORCE_PATH_STYLE: "true"
+  S3_CREATE_BUCKET: "true"

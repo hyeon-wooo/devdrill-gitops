@@ -1,0 +1,16 @@
+# 객체 저장소 데이터. Longhorn 복제 2 라 디스크 하나가 죽어도 버틴다. dev 는 백업하지 않는다.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rustfs-data
+  namespace: sttep-dev
+  labels:
+    app: sttep
+    tier: rustfs
+    env: dev
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 20Gi
