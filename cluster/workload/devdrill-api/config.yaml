@@ -14,5 +14,7 @@ data:
   FILE_BASE_URL: "https://api.devdrill.net"
   FILE_PUBLIC_STORAGE: "/app/data/public"
 
+  # Collector 를 내렸으므로(disabled/otel-collector) SDK 도 끈다.
+  OTEL_SDK_DISABLED: "true"
   OTEL_NODE_RESOURCE_DETECTORS: "none"
   OTEL_JS_INSTRUMENTATION_IOREDIS_ENABLED: "false"
