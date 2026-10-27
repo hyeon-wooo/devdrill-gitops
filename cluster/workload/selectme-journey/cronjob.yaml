@@ -71,7 +71,7 @@ spec:
           containers:
             - name: journey
               # 태그는 selectme-web 레포 GitHub Actions(journey-image.yml)가 바꿔 커밋한다. 가변 태그로 되돌리지 말 것
-              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-journey:dev-0000000
+              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-journey:dev-1b3fca2
               imagePullPolicy: IfNotPresent
               envFrom:
                 - configMapRef:
