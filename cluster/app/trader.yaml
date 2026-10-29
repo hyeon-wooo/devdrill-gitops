@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trader
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: cluster/workload/trader
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: trader
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

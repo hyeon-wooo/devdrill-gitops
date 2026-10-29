@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trader-cm
+  namespace: trader
+  labels:
+    app: trader
+data:
+  TRADER_DATA_DIR: '/app/data'
+  TZ: 'Asia/Seoul'
+  PORT: '8000'
+  TRADER_HOST: '0.0.0.0'

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trader
+  namespace: trader
+  labels:
+    app: trader
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: trader
+  template:
+    metadata:
+      labels:
+        app: trader
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      imagePullSecrets:
+        - name: ghcr-auth
+      containers:
+        - name: trader
+          image: ghcr.io/hyeon-wooo/trader-command-center:sha-000000
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef: { name: trader-cm }
+            - secretRef: { name: trader-secret }
+          volumeMounts:
+            - name: trader-data
+              mountPath: /app/data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: trader-data
+          persistentVolumeClaim:
+            claimName: trader-data
