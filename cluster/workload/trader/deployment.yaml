@@ -25,7 +25,7 @@ spec:
         - name: ghcr-auth
       containers:
         - name: trader
-          image: ghcr.io/hyeon-wooo/trader-command-center:sha-718c4ce
+          image: ghcr.io/hyeon-wooo/trader-command-center:sha-fdcb18f
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
