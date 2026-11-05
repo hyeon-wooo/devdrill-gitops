@@ -50,7 +50,7 @@ spec:
                       expirationSeconds: 3600
           containers:
             - name: runner
-              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-fca7f03acebf
+              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-2b63a44d43b4
               imagePullPolicy: IfNotPresent
               args: ["--mode", "intraday"]
               env:
