@@ -98,7 +98,10 @@ spec:
                 limits:
                   memory: 512Mi
               securityContext:
+                # 이미지의 USER 가 이름(node)이라 kubelet 이 non-root 를 검증 못 한다. node:24-alpine 의 node 는 uid/gid 1000
                 runAsNonRoot: true
+                runAsUser: 1000
+                runAsGroup: 1000
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
                 capabilities:
