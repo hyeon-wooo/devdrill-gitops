@@ -1,0 +1,95 @@
+# 개발 지표 러너 — 15분마다 오늘 지표(intraday 표시된 지표만). 나머지 설명은 cronjob-daily.yaml 과 같다.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: analytics-runner-intraday
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: analytics-runner
+    env: dev
+spec:
+  schedule: "*/15 * * * *"
+  timeZone: Asia/Seoul
+  # 처음에는 멈춘 채 둔다. iac dev apply 와 이미지 push 가 끝난 뒤 false 로 바꾼다
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 840
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: selectme
+            tier: analytics-runner
+            env: dev
+        spec:
+          serviceAccountName: analytics-runner
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          nodeSelector:
+            dedicated: system
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "system"
+          imagePullSecrets:
+            - name: ecr-auth
+          volumes:
+            - name: aws-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      path: token
+                      audience: sts.amazonaws.com
+                      expirationSeconds: 3600
+          containers:
+            - name: runner
+              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-fca7f03acebf
+              imagePullPolicy: IfNotPresent
+              args: ["--mode", "intraday"]
+              env:
+                - name: AWS_REGION
+                  value: ap-northeast-2
+                - name: AWS_ROLE_ARN
+                  value: arn:aws:iam::463470966956:role/selectme-dev-analytics-runner
+                - name: AWS_WEB_IDENTITY_TOKEN_FILE
+                  value: /var/run/secrets/aws/token
+                - name: ATHENA_WORKGROUP
+                  value: selectme-analytics-dev
+                - name: ATHENA_DATABASE
+                  value: selectme_analytics_dev
+                - name: ANALYTICS_BUCKET
+                  value: selectme-dev-analytics
+                - name: DB_AUTH
+                  value: password
+                - name: RUN_DEADLINE_SECONDS
+                  value: "840"
+                - name: MAX_CONCURRENCY
+                  value: "4"
+                - name: TZ
+                  value: Asia/Seoul
+              envFrom:
+                - secretRef:
+                    name: analytics-runner-db
+              volumeMounts:
+                - name: aws-token
+                  mountPath: /var/run/secrets/aws
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]

@@ -1,0 +1,105 @@
+# 개발 지표 러너 — 매일 00:40 KST 에 어제 지표(어제가 주·월·분기·연의 끝이면 그 기간도)를 Athena 로 계산해 개발 MySQL 의 stat_metric 에 넣는다.
+# 운영은 같은 번들을 Lambda 로 돌린다(iac modules/analytics-runner). 소스·README 도 그 모듈에 있다.
+#
+# image 태그는 iac 의 `IMAGE=1 modules/analytics-runner/build.sh` 가 마지막에 출력한 값(dev-<zip sha256 앞 12자>)이다.
+# 코드가 바뀌면 그 값을 여기와 cronjob-intraday.yaml 둘 다 바꾼다. 가변 태그로 되돌리지 말 것.
+#
+# AWS 자격증명은 투영한 ServiceAccount 토큰으로 롤 selectme-dev-analytics-runner 를 맡는다(serviceaccount.yaml 참고).
+# DB 접속은 analytics-runner-db 시크릿(init-private/selectme-analytics-runner/secret.yaml). 유저 selectme_analytics 는 개발 MySQL 에 직접 만들어 두었다(stat_metric 권한만).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: analytics-runner-daily
+  namespace: selectme-dev
+  labels:
+    app: selectme
+    tier: analytics-runner
+    env: dev
+spec:
+  schedule: "40 0 * * *"
+  timeZone: Asia/Seoul
+  # 처음에는 멈춘 채 둔다. iac dev apply(Glue·Athena·롤)와 이미지 push 가 끝난 뒤 false 로 바꾼다
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      # 지표별 실패는 러너가 건너뛰고 끝에 종료 코드 1 로 알린다. 같은 기간을 다시 쓰는 것이라 재시도하지 않고 다음 실행을 기다린다
+      backoffLimit: 0
+      # 러너는 남은 시간이 90초 밑이면 새 지표를 시작하지 않는다(RUN_DEADLINE_SECONDS 와 맞춘다)
+      activeDeadlineSeconds: 840
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: selectme
+            tier: analytics-runner
+            env: dev
+        spec:
+          serviceAccountName: analytics-runner
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          nodeSelector:
+            dedicated: system
+          tolerations:
+            - key: "dedicated"
+              operator: "Equal"
+              value: "system"
+          imagePullSecrets:
+            - name: ecr-auth
+          volumes:
+            - name: aws-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      path: token
+                      audience: sts.amazonaws.com
+                      expirationSeconds: 3600
+          containers:
+            - name: runner
+              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-fca7f03acebf
+              imagePullPolicy: IfNotPresent
+              args: ["--mode", "daily"]
+              env:
+                - name: AWS_REGION
+                  value: ap-northeast-2
+                - name: AWS_ROLE_ARN
+                  value: arn:aws:iam::463470966956:role/selectme-dev-analytics-runner
+                - name: AWS_WEB_IDENTITY_TOKEN_FILE
+                  value: /var/run/secrets/aws/token
+                - name: ATHENA_WORKGROUP
+                  value: selectme-analytics-dev
+                - name: ATHENA_DATABASE
+                  value: selectme_analytics_dev
+                - name: ANALYTICS_BUCKET
+                  value: selectme-dev-analytics
+                - name: DB_AUTH
+                  value: password
+                - name: RUN_DEADLINE_SECONDS
+                  value: "840"
+                - name: MAX_CONCURRENCY
+                  value: "4"
+                - name: TZ
+                  value: Asia/Seoul
+              envFrom:
+                # DB_HOST·DB_PORT·DB_USER·DB_PASSWORD·DB_NAME
+                - secretRef:
+                    name: analytics-runner-db
+              volumeMounts:
+                - name: aws-token
+                  mountPath: /var/run/secrets/aws
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              securityContext:
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
