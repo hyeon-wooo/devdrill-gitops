@@ -18,8 +18,8 @@ metadata:
 spec:
   schedule: "40 0 * * *"
   timeZone: Asia/Seoul
-  # 처음에는 멈춘 채 둔다. iac dev apply(Glue·Athena·롤)와 이미지 push 가 끝난 뒤 false 로 바꾼다
-  suspend: true
+  # iac dev apply 와 이미지 push 가 끝난 2026-11-05 에 켰다. 멈추려면 true
+  suspend: false
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
