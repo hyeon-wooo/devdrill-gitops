@@ -59,7 +59,7 @@ spec:
                       expirationSeconds: 3600
           containers:
             - name: runner
-              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-f825320467d7
+              image: 463470966956.dkr.ecr.ap-northeast-2.amazonaws.com/selectme-analytics-runner:dev-7f2aef5851cb
               imagePullPolicy: IfNotPresent
               args: ["--mode", "daily"]
               env:
@@ -80,7 +80,7 @@ spec:
                 - name: RUN_DEADLINE_SECONDS
                   value: "840"
                 - name: MAX_CONCURRENCY
-                  value: "4"
+                  value: "8"
                 - name: TZ
                   value: Asia/Seoul
               envFrom:
