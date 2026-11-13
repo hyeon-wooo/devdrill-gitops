@@ -68,6 +68,21 @@ spec:
           - kind: Secret
             name: selectme-dev-api-tls
 
+    # demo.selectme.co.kr (selectme 데모 호스팅)
+    # 인증서는 cluster/workload/selectme-demo/certificate-selectme-demo.yaml 이 만든다.
+    - name: selectme-demo-https
+      protocol: HTTPS
+      port: 443
+      hostname: "demo.selectme.co.kr"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: selectme-demo-tls
+
     # *.sttep.work (sttep dev·prod). 인증서는 cluster/app/certificate-sttep.yaml 이 만든다.
     - name: sttep-https
       protocol: HTTPS
