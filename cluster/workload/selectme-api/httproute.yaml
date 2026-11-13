@@ -4,9 +4,16 @@ metadata:
   name: selectme-api-route
   namespace: selectme-dev
 spec:
+  # 리스너를 sectionName 으로 하나씩 지정한다. 붙는 리스너는 전과 같다(http, https).
+  # sectionName 없이 두 리스너에 한꺼번에 붙으면 NGF 1.5 가 같은 host:port/path 의
+  # 중복으로 판정해 게이트웨이의 모든 ClientSettingsPolicy 를 거부한다.
   parentRefs:
     - name: devdrill-gateway
       namespace: nginx-gateway
+      sectionName: http
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: selectme-dev-api-https
   # 앱의 development 설정(cookieDomain: selectme.co.kr, host.api)과 맞는 도메인이라야
   # 로그인 쿠키가 붙는다. 게이트웨이의 selectme-dev-api-https 리스너가 이 이름을 받는다.
   hostnames:

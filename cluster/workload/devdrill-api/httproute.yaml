@@ -4,9 +4,16 @@ metadata:
   name: devdrill-api-route
   namespace: devdrill-prod
 spec:
+  # 리스너를 sectionName 으로 하나씩 지정한다. 붙는 리스너는 전과 같다(http, https).
+  # sectionName 없이 두 리스너에 한꺼번에 붙으면 NGF 1.5 가 같은 host:port/path 의
+  # 중복으로 판정해 게이트웨이의 모든 ClientSettingsPolicy 를 거부한다.
   parentRefs:
     - name: devdrill-gateway
       namespace: nginx-gateway
+      sectionName: http
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: https
   hostnames:
     - "api.devdrill.net"
   rules:
