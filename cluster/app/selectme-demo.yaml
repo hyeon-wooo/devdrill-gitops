@@ -1,0 +1,23 @@
+# 셀렉미 데모 호스팅(demo.selectme.co.kr). 소스: github.com/selectme-project/demo-service
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: selectme-demo
+  namespace: argocd
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: devdrill-cicd
+spec:
+  project: default
+  sources:
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: cluster/workload/selectme-demo
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: selectme-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

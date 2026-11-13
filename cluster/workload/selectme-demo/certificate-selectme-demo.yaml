@@ -1,0 +1,18 @@
+# 게이트웨이의 selectme-demo-https 리스너가 참조하는 TLS 시크릿을 만든다.
+# 게이트웨이는 자기 네임스페이스의 시크릿만 읽으므로 nginx-gateway 에 둔다.
+#
+# selectme.co.kr 은 가비아 네임서버라 challenge 이름을 Cloudflare 존으로 위임한다.
+# 가비아에 아래 레코드가 있어야 발급된다 (한 번만 등록, 갱신은 자동):
+#   _acme-challenge.demo.selectme.co.kr.  CNAME  selectme-demo.hyeonwoo.com.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: selectme-demo
+  namespace: nginx-gateway
+spec:
+  secretName: selectme-demo-tls
+  issuerRef:
+    name: letsencrypt-wildcard-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - demo.selectme.co.kr

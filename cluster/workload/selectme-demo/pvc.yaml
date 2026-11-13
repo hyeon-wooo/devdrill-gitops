@@ -1,0 +1,14 @@
+# 데모 파일 저장소. 앱의 용량 한도는 1GB 지만, 재배포할 때 새 버전을 다 푼 뒤에
+# 옛 버전을 지우므로 한도의 두 배와 여유분이 필요하다.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: selectme-demo-data
+  namespace: selectme-dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: longhorn

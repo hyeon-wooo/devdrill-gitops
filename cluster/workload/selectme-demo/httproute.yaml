@@ -1,0 +1,42 @@
+# 게이트웨이의 selectme-demo-https 리스너(demo.selectme.co.kr)만 받는다.
+# Basic Auth 계정이 평문으로 지나가면 안 되므로 http 리스너에는 붙이지 않는다.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: selectme-demo-route
+  namespace: selectme-dev
+spec:
+  parentRefs:
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: selectme-demo-https
+  hostnames:
+    - "demo.selectme.co.kr"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: selectme-demo
+          port: 3000
+---
+# http 로 들어온 요청은 https 로 돌려보낸다.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: selectme-demo-http-redirect
+  namespace: selectme-dev
+spec:
+  parentRefs:
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: http
+  hostnames:
+    - "demo.selectme.co.kr"
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

@@ -1,0 +1,14 @@
+# 업로드 본문 크기. NGINX 의 기본값(1m)이면 데모 묶음이 게이트웨이에서 막힌다.
+# 앱의 용량 한도(1GB)보다 조금 크게 둔다. 실제 한도는 앱이 검사한다.
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: selectme-demo-upload-body
+  namespace: selectme-dev
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: selectme-demo-route
+  body:
+    maxSize: "1100m"

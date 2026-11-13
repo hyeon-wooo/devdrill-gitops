@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selectme-demo
+  namespace: selectme-dev
+  labels:
+    app: selectme-demo
+spec:
+  replicas: 1
+  # 볼륨이 ReadWriteOnce 라 새 파드와 옛 파드가 동시에 붙을 수 없다.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: selectme-demo
+  template:
+    metadata:
+      labels:
+        app: selectme-demo
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        dedicated: system
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "system"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      # selectme-project 조직의 비공개 패키지를 읽는 토큰. 수동으로 넣는다.
+      imagePullSecrets:
+        - name: ghcr-auth
+      containers:
+        - name: selectme-demo
+          # 태그는 커밋 SHA 기반 불변 태그다. demo-service 레포의 GitHub Actions 가
+          # 이 값을 바꿔 커밋하면 그것이 곧 배포다.
+          image: ghcr.io/selectme-project/demo-service:sha-875b40e
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            # 데모 종류. "slug:표시이름"을 쉼표로 잇는다. 여기에 항목을 추가해 커밋하면
+            # 파드가 다시 뜨면서 새 데모를 받을 수 있게 된다. 기존 데모 파일은 그대로다.
+            - name: DEMOS
+              value: "jeonghwa:정화예대,goe:경기도교육청"
+            - name: PUBLIC_URL
+              value: "https://demo.selectme.co.kr"
+            - name: DATA_DIR
+              value: /data
+            - name: PORT
+              value: "3000"
+          # UPLOAD_TOKEN, BASIC_AUTH_USER, BASIC_AUTH_PASSWORD.
+          # init-private/selectme-demo/secret.yaml 참고.
+          envFrom:
+            - secretRef:
+                name: selectme-demo-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: selectme-demo-data
