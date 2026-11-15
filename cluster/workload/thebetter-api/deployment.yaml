@@ -53,6 +53,13 @@ spec:
                   name: thebetter-admin-token
                   key: token
                   optional: true
+            # 관리 화면 로그인의 TOTP 비밀. 토큰과 이것이 모두 있어야 관리자 리스너가 뜬다(없어도 파드는 뜬다)
+            - name: ADMIN_TOTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: thebetter-admin-token
+                  key: totp
+                  optional: true
           volumeMounts:
             - name: data
               mountPath: /data

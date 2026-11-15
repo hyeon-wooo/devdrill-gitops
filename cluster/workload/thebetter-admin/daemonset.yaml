@@ -1,28 +1,37 @@
-# 더나은 운영자 관리 화면. nginx(비루트)가 정적 파일을 주고 /admin/ 을 thebetter-api:8081(API 의 관리자 리스너)로 넘긴다.
-# 상태가 없어 겹쳐 띄워도 된다(RollingUpdate).
+# 더나은 운영자 관리 화면. 집 내부망·VPN 전용이다(공개 게이트웨이에 붙이지 않는다).
+# nginx(비루트)가 TLS 를 끝내고 정적 파일을 주고, /admin/ 을 thebetter-api:8081(API 의 관리자 리스너)로 넘긴다.
+#
+# DaemonSet 인 까닭: Service 가 externalTrafficPolicy: Local 이라야 nginx 와 NetworkPolicy 가 접속한 기기의 주소를 그대로 보고
+# 10.10.10.0/24 만 받을 수 있다. Local 이면 파드가 있는 노드만 답하므로 띄울 수 있는 노드마다 하나씩 둔다.
+# DNS(internal.thebetter.day)의 A 레코드는 이 파드가 뜬 노드 IP 다(지금 home51, home53. home52 는 devdrill 전용).
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: thebetter-admin
   namespace: thebetter
   labels:
     app: thebetter-admin
 spec:
-  replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: thebetter-admin
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   template:
     metadata:
       labels:
         app: thebetter-admin
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 101 # nginx-unprivileged
         runAsGroup: 101
+        fsGroup: 101
         seccompProfile:
           type: RuntimeDefault
       imagePullSecrets:
@@ -30,14 +39,17 @@ spec:
       containers:
         - name: web
           # 태그는 커밋 SHA 기반 불변 태그다. thebetter-admin 레포의 GitHub Actions 가 이 줄을 바꿔 커밋하면 그것이 배포다.
-          image: ghcr.io/hyeon-wooo/thebetter-admin:sha-d5519f0
+          image: ghcr.io/hyeon-wooo/thebetter-admin:sha-eeab745
           imagePullPolicy: IfNotPresent
           ports:
-            - name: http
-              containerPort: 8080
+            - name: https
+              containerPort: 8443
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: tls
+              mountPath: /etc/nginx/tls
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -51,14 +63,16 @@ spec:
               memory: 64Mi
           readinessProbe:
             httpGet:
+              scheme: HTTPS
               path: /healthz
-              port: http
+              port: https
             periodSeconds: 10
             timeoutSeconds: 2
           livenessProbe:
             httpGet:
+              scheme: HTTPS
               path: /healthz
-              port: http
+              port: https
             initialDelaySeconds: 5
             periodSeconds: 30
             timeoutSeconds: 2
@@ -66,3 +80,12 @@ spec:
         - name: tmp
           emptyDir:
             sizeLimit: 64Mi
+        - name: tls
+          secret:
+            secretName: thebetter-internal-tls
+            defaultMode: 0440
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key

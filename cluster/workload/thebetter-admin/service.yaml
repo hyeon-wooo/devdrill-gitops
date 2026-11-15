@@ -1,3 +1,5 @@
+# 노드 IP 의 31443 으로 연다. 공유기는 443(게이트웨이)만 열어 두므로 이 포트는 인터넷에서 닿지 않는다.
+# externalTrafficPolicy: Local: 받은 노드의 파드로만 보내고 접속한 기기의 주소를 바꾸지 않는다(nginx, NetworkPolicy 가 그 주소로 거른다).
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,10 +8,12 @@ metadata:
   labels:
     app: thebetter-admin
 spec:
-  type: ClusterIP
+  type: NodePort
+  externalTrafficPolicy: Local
   selector:
     app: thebetter-admin
   ports:
-    - name: http
-      port: 8080
-      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
+      nodePort: 31443

@@ -1,0 +1,27 @@
+# 관리 화면 파드로 들어오는 길: 8443 을 집 내부망·VPN(10.10.10.0/24)에서만 받는다.
+# 노드의 Calico 터널 주소는 kubelet 상태 확인이 그 주소로 올 수 있어 함께 둔다(노드에서 나온 것만 이 주소를 쓴다).
+# 클러스터 안의 다른 파드(192.168.0.0/16)는 닿지 않는다.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: thebetter-admin
+  namespace: thebetter
+spec:
+  podSelector:
+    matchLabels:
+      app: thebetter-admin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 10.10.10.0/24
+        - ipBlock:
+            cidr: 192.168.239.0/32 # home51 터널
+        - ipBlock:
+            cidr: 192.168.75.0/32 # home52 터널
+        - ipBlock:
+            cidr: 192.168.14.64/32 # home53 터널
+      ports:
+        - protocol: TCP
+          port: 8443
