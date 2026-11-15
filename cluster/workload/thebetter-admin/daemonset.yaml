@@ -3,7 +3,7 @@
 #
 # DaemonSet 인 까닭: Service 가 externalTrafficPolicy: Local 이라야 nginx 와 NetworkPolicy 가 접속한 기기의 주소를 그대로 보고
 # 10.10.10.0/24 만 받을 수 있다. Local 이면 파드가 있는 노드만 답하므로 띄울 수 있는 노드마다 하나씩 둔다.
-# DNS(internal.thebetter.day)의 A 레코드는 이 파드가 뜬 노드 IP 다(지금 home51, home53. home52 는 devdrill 전용).
+# internal.thebetter.day 는 공개 DNS 에 없다. 쓰는 기기의 hosts 에 이 파드가 뜬 노드 IP 를 적는다(지금 home51, home53. home52 는 devdrill 전용).
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
