@@ -33,3 +33,7 @@ data:
   KAKAO_APP_ID: "1651120"
 
   SCHEDULER_INTERVAL: "1m"
+
+  # 관리자 리스너(운영자 관리 화면 internal.thebetter.day 의 백엔드). 토큰 ADMIN_TOKEN 은 시크릿 thebetter-admin-token 에서 온다.
+  # 토큰이 없으면 서버는 뜨고 이 리스너만 띄우지 않는다. 8081 은 게이트웨이에 붙이지 않고 thebetter-admin 파드만 닿는다(networkpolicy.yaml).
+  ADMIN_HTTP_ADDR: ":8081"

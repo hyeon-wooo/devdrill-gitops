@@ -13,3 +13,7 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    # 관리자 리스너. 게이트웨이 라우트는 없고 thebetter-admin 의 nginx 만 부른다
+    - name: admin
+      port: 8081
+      targetPort: admin

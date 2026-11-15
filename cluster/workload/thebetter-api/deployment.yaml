@@ -40,9 +40,19 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: admin
+              containerPort: 8081
           envFrom:
             - configMapRef:
                 name: thebetter-api-cm
+          env:
+            # 관리자 토큰. 시크릿이 없어도 파드는 뜬다(관리자 리스너만 꺼진다)
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: thebetter-admin-token
+                  key: token
+                  optional: true
           volumeMounts:
             - name: data
               mountPath: /data

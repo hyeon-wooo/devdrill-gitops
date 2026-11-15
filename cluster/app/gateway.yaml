@@ -114,3 +114,21 @@ spec:
         certificateRefs:
           - kind: Secret
             name: thebetter-api-tls
+
+    # internal.thebetter.day (더나은 운영자 관리 화면). 인증서는 cluster/workload/thebetter-admin/certificate.yaml 이 만든다.
+    # thebetter 네임스페이스의 라우트만 받는다.
+    - name: thebetter-internal-https
+      protocol: HTTPS
+      port: 443
+      hostname: "internal.thebetter.day"
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: thebetter
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: thebetter-internal-tls

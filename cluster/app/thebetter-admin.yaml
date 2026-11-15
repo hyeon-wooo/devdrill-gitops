@@ -1,0 +1,22 @@
+# 더나은 운영자 관리 화면(internal.thebetter.day). 이미지 태그는 thebetter-admin 레포의 GitHub Actions(production 브랜치 푸시)가 바꿔 커밋한다.
+# 관리자 토큰 시크릿(thebetter-admin-token)은 git 에 없다. init-private/thebetter/admin-token.sh 로 사람이 넣는다.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: thebetter-admin
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: "git@github.com:hyeon-wooo/devdrill-gitops.git"
+      targetRevision: HEAD
+      path: cluster/workload/thebetter-admin
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: thebetter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

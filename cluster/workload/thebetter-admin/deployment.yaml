@@ -1,0 +1,68 @@
+# 더나은 운영자 관리 화면. nginx(비루트)가 정적 파일을 주고 /admin/ 을 thebetter-api:8081(API 의 관리자 리스너)로 넘긴다.
+# 상태가 없어 겹쳐 띄워도 된다(RollingUpdate).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thebetter-admin
+  namespace: thebetter
+  labels:
+    app: thebetter-admin
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: thebetter-admin
+  template:
+    metadata:
+      labels:
+        app: thebetter-admin
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101 # nginx-unprivileged
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+        - name: ghcr-auth
+      containers:
+        - name: web
+          # 태그는 커밋 SHA 기반 불변 태그다. thebetter-admin 레포의 GitHub Actions 가 이 줄을 바꿔 커밋하면 그것이 배포다.
+          image: ghcr.io/hyeon-wooo/thebetter-admin:sha-5d0c54f
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+            timeoutSeconds: 2
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

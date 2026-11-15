@@ -1,0 +1,24 @@
+# API 파드로 들어오는 길. 앱용 8080 은 지금처럼 어디서나(게이트웨이, kubelet 상태 확인) 받고,
+# 관리자 리스너 8081 은 같은 네임스페이스의 thebetter-admin 파드에서 오는 것만 받는다. 클러스터는 Calico 라 이 정책이 걸린다.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: thebetter-api
+  namespace: thebetter
+spec:
+  podSelector:
+    matchLabels:
+      app: thebetter-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+    - from:
+        - podSelector:
+            matchLabels:
+              app: thebetter-admin
+      ports:
+        - protocol: TCP
+          port: 8081
