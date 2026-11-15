@@ -32,6 +32,11 @@ data:
   GOOGLE_WEB_CLIENT_ID: "39913511827-4c79ioi6ocrtlr238jmalvrhf0qn88nb.apps.googleusercontent.com"
   KAKAO_APP_ID: "1651120"
 
+  # 아이폰 알림(APNs). PUSH 를 비우면 APNS_KEY_PATH 가 있을 때 apns 다. 팀 ID 는 APPLE_TEAM_ID, apns-topic 은 APPLE_BUNDLE_ID.
+  # 키 ID 는 비밀값이 아니다(Team Scoped, Sandbox·Production 공용, devdrill 과 같이 쓰는 키). 키 파일은 시크릿 apns-key.
+  APNS_KEY_ID: "SX65QVK73V"
+  APNS_KEY_PATH: "/secrets/apns/AuthKey.p8"
+
   SCHEDULER_INTERVAL: "1m"
 
   # 관리자 리스너(운영자 관리 화면 internal.thebetter.day 의 백엔드). 토큰 ADMIN_TOKEN 은 시크릿 thebetter-admin-token 에서 온다.
