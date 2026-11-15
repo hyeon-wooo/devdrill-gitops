@@ -1,0 +1,16 @@
+# SQLite 파일(/data/thebetter.db). Longhorn 복제본 2개(노드 두 대).
+# 아직 바깥 백업이 없다. 매니페스트를 지우거나 Application 을 지워도 볼륨이 지워지지 않게 prune·delete 를 막는다.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: thebetter-data
+  namespace: thebetter
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn

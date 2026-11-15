@@ -1,0 +1,21 @@
+# thebetter.day 전용 발급자. 기존 letsencrypt-wildcard-issuer 의 토큰은 thebetter.day 존 권한이 없어서 따로 둔다.
+# 토큰 시크릿 cloudflare-api-token-thebetter(cert-manager 네임스페이스)는 init-private/thebetter/ 에서 사람이 넣는다.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-thebetter-issuer
+spec:
+  acme:
+    email: hyeonwoo.v24@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-thebetter-issuer-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token-thebetter
+              key: api-token
+        selector:
+          dnsZones:
+            - thebetter.day

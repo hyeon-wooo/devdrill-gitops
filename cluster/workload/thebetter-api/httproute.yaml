@@ -1,0 +1,41 @@
+# api.thebetter.day. 클라우드플레어 프록시를 끈 DNS 레코드(집 공인 IP)로 들어와 게이트웨이의 thebetter-api-https 리스너가 받는다.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: thebetter-api-route
+  namespace: thebetter
+spec:
+  parentRefs:
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: thebetter-api-https
+  hostnames:
+    - "api.thebetter.day"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: thebetter-api
+          port: 8080
+---
+# http 로 들어온 요청은 https 로 돌려보낸다. 토큰이 평문으로 지나가지 않게 http 에는 서버를 붙이지 않는다.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: thebetter-api-http-redirect
+  namespace: thebetter
+spec:
+  parentRefs:
+    - name: devdrill-gateway
+      namespace: nginx-gateway
+      sectionName: http
+  hostnames:
+    - "api.thebetter.day"
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

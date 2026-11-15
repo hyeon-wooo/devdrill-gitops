@@ -1,0 +1,95 @@
+# 더나은 API. SQLite 쓰기 연결이 하나라 파드는 늘 한 개다.
+# replicas 를 늘리거나 HPA 를 붙이지 않는다. 새 버전으로 바꿀 때도 Recreate 로 옛 파드를 먼저 내린다(두 개가 겹치지 않게).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thebetter-api
+  namespace: thebetter
+  labels:
+    app: thebetter-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: thebetter-api
+  template:
+    metadata:
+      labels:
+        app: thebetter-api
+    spec:
+      automountServiceAccountToken: false
+      # 서버가 받은 요청을 마칠 시간(HTTP_SHUTDOWN_TIMEOUT 15s)보다 넉넉하게.
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532 # distroless nonroot
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+        - name: ghcr-auth
+      containers:
+        - name: api
+          # 태그는 커밋 SHA 기반 불변 태그다. thebetter-api 레포의 GitHub Actions 가 이 줄을 바꿔 커밋하면 그것이 배포다.
+          image: ghcr.io/hyeon-wooo/thebetter-api:sha-0000000
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: thebetter-api-cm
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: apple-signin-key
+              mountPath: /secrets/apple
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          # /readyz 는 DB 에 닿는지 본다. 실패하면 요청을 보내지 않는다.
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          # /healthz 는 프로세스만 본다. DB 가 죽어도 재시작하지 않는다(재시작해도 낫지 않으므로).
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: thebetter-data
+        - name: apple-signin-key
+          secret:
+            secretName: apple-signin-key
+            defaultMode: 0440
+            items:
+              - key: AuthKey.p8
+                path: AuthKey.p8
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
