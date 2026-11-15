@@ -19,6 +19,9 @@ spec:
     metadata:
       labels:
         app: thebetter-api
+      annotations:
+        # 서버는 ConfigMap 을 시작할 때만 읽는다. config.yaml 을 바꾸면 이 값도 바꿔 파드를 다시 띄운다.
+        thebetter.day/config-rev: "2026-11-15-1"
     spec:
       automountServiceAccountToken: false
       # 서버가 받은 요청을 마칠 시간(HTTP_SHUTDOWN_TIMEOUT 15s)보다 넉넉하게.
