@@ -38,7 +38,7 @@ spec:
       containers:
         - name: api
           # 태그는 커밋 SHA 기반 불변 태그다. thebetter-api 레포의 GitHub Actions 가 이 줄을 바꿔 커밋하면 그것이 배포다.
-          image: ghcr.io/hyeon-wooo/thebetter-api:sha-7eb90fb
+          image: ghcr.io/hyeon-wooo/thebetter-api:sha-d701b08
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
