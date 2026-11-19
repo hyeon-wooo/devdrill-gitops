@@ -1,6 +1,6 @@
 service:
   type: NodePort
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   ports:
     - port: 80
       targetPort: 80
