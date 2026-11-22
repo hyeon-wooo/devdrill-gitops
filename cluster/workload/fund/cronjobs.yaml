@@ -1,3 +1,4 @@
+# KIS 실전 키(fund-kis)는 kis-sync 에만 주입한다. 다른 작업은 DATABASE_URL만 받는다 (사무실 D-005, 리뷰 #4).
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -19,9 +20,12 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-f92ed97
               command: ["fund-collect", "prices"]
-              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              envFrom: [{ configMapRef: { name: fund-cm } }]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
               resources:
                 requests: { cpu: 100m, memory: 256Mi }
                 limits: { cpu: 500m, memory: 768Mi }
@@ -47,9 +51,12 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices-sat
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-f92ed97
               command: ["fund-collect", "prices"]
-              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              envFrom: [{ configMapRef: { name: fund-cm } }]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
               resources:
                 requests: { cpu: 100m, memory: 256Mi }
                 limits: { cpu: 500m, memory: 768Mi }
@@ -75,9 +82,12 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: kis-sync
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-f92ed97
               command: ["fund-collect", "kis-sync"]
-              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-kis } }]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
               resources:
                 requests: { cpu: 100m, memory: 256Mi }
                 limits: { cpu: 500m, memory: 768Mi }
@@ -103,9 +113,12 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: valuate
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-f92ed97
               command: ["fund-collect", "valuate"]
-              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              envFrom: [{ configMapRef: { name: fund-cm } }]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
               resources:
                 requests: { cpu: 100m, memory: 256Mi }
                 limits: { cpu: 500m, memory: 768Mi }

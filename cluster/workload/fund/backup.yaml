@@ -31,9 +31,11 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - >-
-                  set -e;
+                  set -eo pipefail;
                   f=/backup/fund-$(date +%F).sql.gz;
-                  pg_dump -h fund-db -U fund fund | gzip > "$f";
+                  pg_dump -h fund-db -U fund fund | gzip > "$f.tmp";
+                  test "$(gzip -dc "$f.tmp" | head -c 200000 | grep -c 'CREATE TABLE')" -ge 1;
+                  mv "$f.tmp" "$f";
                   ls -1t /backup/fund-*.sql.gz | tail -n +15 | xargs -r rm -f;
                   ls -l /backup
               volumeMounts: [{ name: backup, mountPath: /backup }]

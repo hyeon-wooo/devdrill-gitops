@@ -22,7 +22,7 @@ spec:
       imagePullSecrets: [{ name: ghcr-auth }]
       containers:
         - name: web
-          image: ghcr.io/hyeon-wooo/fund-system-web:sha-b04b10a
+          image: ghcr.io/hyeon-wooo/fund-system-web:sha-f92ed97
           ports: [{ containerPort: 8080 }]
           readinessProbe: { httpGet: { path: /, port: 8080 }, periodSeconds: 10 }
           resources:
