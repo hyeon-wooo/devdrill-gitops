@@ -1,0 +1,13 @@
+# 유일한 진입점: Tailscale 오퍼레이터 Ingress (tailnet 안에서만, https://fund.<tailnet>.ts.net).
+# 공용 게이트웨이(devdrill-gateway)는 공인 IP로 열려 있어 쓰지 않는다 (사무실 D-006).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fund
+  namespace: fund
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service: { name: fund-web, port: { number: 80 } }
+  tls:
+    - hosts: [fund]

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fund-backup
+  namespace: fund
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: longhorn
+  resources: { requests: { storage: 5Gi } }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+  namespace: fund
+spec:
+  schedule: "0 3 * * *"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pg-dump
+              image: postgres:16-alpine
+              env:
+                - name: PGPASSWORD
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: POSTGRES_PASSWORD } }
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  set -e;
+                  f=/backup/fund-$(date +%F).sql.gz;
+                  pg_dump -h fund-db -U fund fund | gzip > "$f";
+                  ls -1t /backup/fund-*.sql.gz | tail -n +15 | xargs -r rm -f;
+                  ls -l /backup
+              volumeMounts: [{ name: backup, mountPath: /backup }]
+          volumes:
+            - name: backup
+              persistentVolumeClaim: { claimName: fund-backup }

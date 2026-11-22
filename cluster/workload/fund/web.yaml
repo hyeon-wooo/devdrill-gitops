@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fund-web
+  namespace: fund
+spec:
+  selector: { app: fund-web }
+  ports: [{ port: 80, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fund-web
+  namespace: fund
+  labels: { app: fund-web }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: fund-web } }
+  template:
+    metadata: { labels: { app: fund-web } }
+    spec:
+      imagePullSecrets: [{ name: ghcr-auth }]
+      containers:
+        - name: web
+          image: ghcr.io/hyeon-wooo/fund-system-web:sha-b04b10a
+          ports: [{ containerPort: 8080 }]
+          readinessProbe: { httpGet: { path: /, port: 8080 }, periodSeconds: 10 }
+          resources:
+            requests: { cpu: 20m, memory: 32Mi }
+            limits: { cpu: 200m, memory: 128Mi }

@@ -1,0 +1,3 @@
+# OAuth 클라이언트 값은 운영자가 init-private/tailscale/ 예시로 직접 적용한다 (이름 operator-oauth).
+operatorConfig:
+  hostname: homelab-k8s-operator

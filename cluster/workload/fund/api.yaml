@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fund-api
+  namespace: fund
+spec:
+  selector: { app: fund-api }
+  ports: [{ port: 8000, targetPort: 8000 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fund-api
+  namespace: fund
+  labels: { app: fund-api }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector: { matchLabels: { app: fund-api } }
+  template:
+    metadata: { labels: { app: fund-api } }
+    spec:
+      securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+      imagePullSecrets: [{ name: ghcr-auth }]
+      initContainers:
+        - name: migrate
+          image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+          command: ["alembic", "upgrade", "head"]
+          envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+      containers:
+        - name: api
+          image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+          ports: [{ containerPort: 8000 }]
+          envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+          readinessProbe: { httpGet: { path: /health, port: 8000 }, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 20, periodSeconds: 20 }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: 500m, memory: 512Mi }

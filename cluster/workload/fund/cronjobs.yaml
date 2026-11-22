@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: prices
+  namespace: fund
+spec:
+  schedule: "10 7,16 * * 1-5"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+          imagePullSecrets: [{ name: ghcr-auth }]
+          containers:
+            - name: prices
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              command: ["fund-collect", "prices"]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { cpu: 500m, memory: 768Mi }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: prices-sat
+  namespace: fund
+spec:
+  schedule: "10 9 * * 6"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+          imagePullSecrets: [{ name: ghcr-auth }]
+          containers:
+            - name: prices-sat
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              command: ["fund-collect", "prices"]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { cpu: 500m, memory: 768Mi }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kis-sync
+  namespace: fund
+spec:
+  schedule: "30 8,16 * * 1-5"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+          imagePullSecrets: [{ name: ghcr-auth }]
+          containers:
+            - name: kis-sync
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              command: ["fund-collect", "kis-sync"]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { cpu: 500m, memory: 768Mi }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: valuate
+  namespace: fund
+spec:
+  schedule: "40 7,16 * * *"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+          imagePullSecrets: [{ name: ghcr-auth }]
+          containers:
+            - name: valuate
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-b04b10a
+              command: ["fund-collect", "valuate"]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { cpu: 500m, memory: 768Mi }
