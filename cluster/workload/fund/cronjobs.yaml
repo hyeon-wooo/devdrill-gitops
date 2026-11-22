@@ -20,7 +20,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-c2ce8bd
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-14beaaa
               command: ["fund-collect", "prices"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
               env:
@@ -51,7 +51,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices-sat
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-c2ce8bd
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-14beaaa
               command: ["fund-collect", "prices"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
               env:
@@ -82,7 +82,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: kis-sync
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-c2ce8bd
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-14beaaa
               command: ["fund-collect", "kis-sync"]
               envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-kis, optional: true } }]
               env:
@@ -113,7 +113,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: valuate
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-c2ce8bd
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-14beaaa
               command: ["fund-collect", "valuate"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
               env:
