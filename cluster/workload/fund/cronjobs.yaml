@@ -84,7 +84,7 @@ spec:
             - name: kis-sync
               image: ghcr.io/hyeon-wooo/fund-system-api:sha-f92ed97
               command: ["fund-collect", "kis-sync"]
-              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-kis } }]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-kis, optional: true } }]
               env:
                 - name: DATABASE_URL
                   valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
