@@ -1,0 +1,67 @@
+# fund.hyeonwoo.com 진입점. TLS 를 여기서 끝내고 fund-web 으로 넘긴다.
+# Service 는 Tailscale LoadBalancer 라서 tailnet IP(100.x)만 생긴다. 공개 DNS 의 A 레코드는 그 사설 IP 를 가리킨다 (사무실 D-006).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fund-edge-conf
+  namespace: fund
+data:
+  default.conf: |
+    server {
+      listen 8443 ssl;
+      http2 on;
+      server_name fund.hyeonwoo.com;
+      ssl_certificate     /etc/nginx/tls/tls.crt;
+      ssl_certificate_key /etc/nginx/tls/tls.key;
+      ssl_protocols TLSv1.2 TLSv1.3;
+      add_header Strict-Transport-Security "max-age=31536000" always;
+      client_max_body_size 5m;
+      location / {
+        proxy_pass http://fund-web:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fund-edge
+  namespace: fund
+  labels: { app: fund-edge }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: fund-edge } }
+  template:
+    metadata: { labels: { app: fund-edge } }
+    spec:
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          ports: [{ containerPort: 8443 }]
+          readinessProbe: { tcpSocket: { port: 8443 }, periodSeconds: 10 }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { cpu: 200m, memory: 64Mi }
+          volumeMounts:
+            - { name: conf, mountPath: /etc/nginx/conf.d }
+            - { name: tls, mountPath: /etc/nginx/tls, readOnly: true }
+      volumes:
+        - name: conf
+          configMap: { name: fund-edge-conf }
+        - name: tls
+          secret: { secretName: fund-hyeonwoo-tls }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fund-edge
+  namespace: fund
+  annotations:
+    tailscale.com/hostname: fund-edge
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector: { app: fund-edge }
+  ports: [{ name: https, port: 443, targetPort: 8443 }]

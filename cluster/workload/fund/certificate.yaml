@@ -1,0 +1,12 @@
+# fund.hyeonwoo.com 인증서 (Cloudflare DNS-01, 기존 와일드카드 발급기). 인증서는 fund-edge 가 쓴다.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: fund-hyeonwoo
+  namespace: fund
+spec:
+  secretName: fund-hyeonwoo-tls
+  dnsNames: [fund.hyeonwoo.com]
+  issuerRef:
+    name: letsencrypt-wildcard-issuer
+    kind: ClusterIssuer
