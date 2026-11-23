@@ -1,0 +1,11 @@
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: homelab-subnet
+spec:
+  hostname: homelab-subnet
+  tags:
+    - tag:k8s
+  subnetRouter:
+    advertiseRoutes:
+      - 10.10.10.0/24
