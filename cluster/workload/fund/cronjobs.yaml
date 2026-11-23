@@ -1,4 +1,5 @@
-# KIS 실전 키(fund-kis)는 kis-sync 에만 주입한다. 다른 작업은 DATABASE_URL만 받는다 (사무실 D-005, 리뷰 #4).
+# KIS 실전 키(fund-kis)는 kis-sync 에만 주입한다. 데이터 키(fund-data: FRED, ECOS)는 market 에만 주입한다.
+# 다른 작업은 DATABASE_URL만 받는다 (사무실 D-005, 리뷰 #4).
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -20,7 +21,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
               command: ["fund-collect", "prices"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
               env:
@@ -51,7 +52,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: prices-sat
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
               command: ["fund-collect", "prices"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
               env:
@@ -82,7 +83,7 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: kis-sync
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
               command: ["fund-collect", "kis-sync"]
               envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-kis, optional: true } }]
               env:
@@ -113,9 +114,41 @@ spec:
           imagePullSecrets: [{ name: ghcr-auth }]
           containers:
             - name: valuate
-              image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
               command: ["fund-collect", "valuate"]
               envFrom: [{ configMapRef: { name: fund-cm } }]
+              env:
+                - name: DATABASE_URL
+                  valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { cpu: 500m, memory: 768Mi }
+---
+# P2 시장 탭. 키가 없으면(fund-data 없음) 한국 시리즈와 미국 발표 일정만 건너뛴다.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: market
+  namespace: fund
+spec:
+  schedule: "20 7,16 * * *"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext: { runAsUser: 1000, runAsGroup: 1000 }
+          imagePullSecrets: [{ name: ghcr-auth }]
+          containers:
+            - name: market
+              image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
+              command: ["fund-collect", "market"]
+              envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-data, optional: true } }]
               env:
                 - name: DATABASE_URL
                   valueFrom: { secretKeyRef: { name: fund-secret, key: DATABASE_URL } }

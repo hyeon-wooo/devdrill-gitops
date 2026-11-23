@@ -24,12 +24,12 @@ spec:
       imagePullSecrets: [{ name: ghcr-auth }]
       initContainers:
         - name: migrate
-          image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+          image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
           command: ["alembic", "upgrade", "head"]
           envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
       containers:
         - name: api
-          image: ghcr.io/hyeon-wooo/fund-system-api:sha-55d10be
+          image: ghcr.io/hyeon-wooo/fund-system-api:sha-2aed63f
           ports: [{ containerPort: 8000 }]
           envFrom: [{ configMapRef: { name: fund-cm } }, { secretRef: { name: fund-secret } }]
           readinessProbe: { httpGet: { path: /health, port: 8000 }, periodSeconds: 10 }
