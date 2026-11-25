@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: selectme-analytics-runner
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
   annotations:
     notifications.argoproj.io/subscribe.on-sync-succeeded.slack: devdrill-cicd
 spec:
